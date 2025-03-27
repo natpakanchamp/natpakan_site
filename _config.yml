@@ -28,7 +28,7 @@ instagram_username: _nakaptan
 github_username:  nakaptan
 
 # Build settings
-remote_theme: "jekyll/minima@1e8a445"
+theme: minima
 plugins:
   - jekyll-feed
 
