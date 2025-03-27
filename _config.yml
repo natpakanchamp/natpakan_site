@@ -22,8 +22,8 @@ title: Natpakan K.
 email: champnatpakan@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
 # Here for description.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/natpakan_site" # the subpath of your site, e.g. /blog
+url: "https://nakaptan.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 instagram_username: _nakaptan
 github_username:  nakaptan
 
