@@ -9,7 +9,7 @@ permalink: /projects/:year/:month/:day/:title/
 
 สวัสดีครับ นี่เป็นโปรเจคแรกหลังจากเข้ามาเรียนในรั้วมหาวิทยาลัยเชียงใหม่ ตอนนั้นอาจารย์โรเจอร์จัดกลุ่มให้พวกเราขึ้นมาทั้งหมดมีสี่คน คือ แชมป์ ไอซ์ มาร์ติน ใบบัว
 
-<img src="/assets/the-dormgeist.png" alt="image-the-dormgeist">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/the-dormgeist.png" alt="image-the-dormgeist">
 
 ตอนนั้นเราเสนอหัวข้อโปรเจคขึ้นมาหลายประเด็น สุดท้ายเราได้ข้อตกลงกันว่าจะทำเกี่ยวกับเกมผีสยองขวัญที่มีตำนานเกี่ยวกับมหาลัยชื่อดังแห่งหนึ่งในภาคเหนือ โดยโปรเจคนี้ได้แรงบันดาลใจมาจากเกม The HOUSE 
 
@@ -24,17 +24,17 @@ Block code ของโปรเจค -->
 
 เมื่อเข้ามาในหน้าแรก Chapter 1 ผู้เล่นจะตื่นขึ้นมาในห้องนอนแห่งหนึ่ง ซึ่งจะมีเสียงวิทยุรายงานข่าว
 
-<img src="/assets/the-dormgeist-bedroom.png" alt="image-the-dormgeist-bedroom">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/the-dormgeist-bedroom.png" alt="image-the-dormgeist-bedroom">
 
 ผู้เล่นสามารถเลือกคลิ๊กประตู, กรอบรูปเพื่อ interact กับสิ่งของเหล่านั้นได้
 
 เมื่อผ่าน Chapter 1 มาได้ ก็จะเข้าสู่ Chapter 2 ในด่านนี้จะมีทั้งหมด 3ฉาก โดยผู้เล่นจะต้อง interact กับสวิซต์ไฟ, โคมไฟ, กระดาษโน๊ต, ฯลฯ
 
-<img src="/assets/the-chapter2.png" alt="dark-scene-chapter2">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/the-chapter2.png" alt="dark-scene-chapter2">
 
 เมื่อผ่าน Chapter 1 และ 2 มาได้แล้ว เข้าสู่ Chapter 3 ซึ่งเป็นด่านสุดท้ายของเกม ผู้เล่นจะเสมือนเสร็จการประชุมจากโปรเจคเกมที่ตนเองและเพื่อนๆกำลังทำอยู่
 
-<img src="/assets/the-chapter3.png" alt="bedroom-chapter3">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/the-chapter3.png" alt="bedroom-chapter3">
 
 ที่เอามาแสดงอาจจะดูโล่งๆ ถ้าอยากได้แบบเต็มอรรถรส ต้องลองเล่นเองครับ :)
 

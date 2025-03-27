@@ -17,7 +17,7 @@ permalink: /activities/:year/:month/:day/:title/
 
 <img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/freshmen-night4.jpg" alt="freshmen-night4">
 
-<video controls>
+<video width="640" height="480" controls>
   <source src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/video-freshmen-night.mp4" type="video/mp4">
 Your browser does not support the video tag.
 </video>

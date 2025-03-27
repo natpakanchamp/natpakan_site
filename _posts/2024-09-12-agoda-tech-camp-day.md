@@ -13,8 +13,8 @@ Agoda tech camp day เป็นการอบรมเกี่ยวกับ
 
 <a href="https://www.youtube.com/watch?v=EeM9DAF3h_0">Agoda Tech Camp Day 2024 in Chiang Mai</a>
 
-<img src="/assets/agoda-tech-camp-day.jpg" alt="agoda-tech-camp-day">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/agoda-tech-camp-day.jpg" alt="agoda-tech-camp-day">
 
-<img src="/assets/certificate-agoda-tech-camp-day.JPG" alt="certificate-agoda-tech-camp-day">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/certificate-agoda-tech-camp-day.JPG" alt="certificate-agoda-tech-camp-day">
 
 การอบรมครั้งนี้ใช้ภาษา Python ในการทำงาน
