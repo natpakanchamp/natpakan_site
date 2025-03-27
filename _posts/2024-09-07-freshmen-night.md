@@ -11,13 +11,13 @@ permalink: /activities/:year/:month/:day/:title/
 
 <img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/freshmen-night1.jpg" alt="freshmen-night1">
 
-<img src="/assets/freshmen-night2.jpg" alt="freshmen-night2">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/freshmen-night2.jpg" alt="freshmen-night2">
 
-<img src="/assets/freshmen-night3.jpg" alt="freshmen-night3">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/freshmen-night3.jpg" alt="freshmen-night3">
 
-<img src="/assets/freshmen-night4.jpg" alt="freshmen-night4">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/freshmen-night4.jpg" alt="freshmen-night4">
 
 <video controls>
-  <source src="/assets/video-freshmen-night.mp4" type="video/mp4">
+  <source src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/video-freshmen-night.mp4" type="video/mp4">
 Your browser does not support the video tag.
 </video>
