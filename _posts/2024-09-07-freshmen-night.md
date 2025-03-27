@@ -9,7 +9,7 @@ permalink: /activities/:year/:month/:day/:title/
 
 งาน Freshmen night เป็นงานที่จัดเนื่องในโอกาสต้อนรับนักศึกษาใหม่รหัส 67 ภายในงานนี้ผมมีโอกาสเป็นนักแสดงจากชมรมดุริยางค์ มหาวิทยาลัยเชียงใหม่ ซึ่งถือเป็นกิจกรรมแรกที่ผมได้เข้าร่วมหลังจากเข้ามาในรั้วมหาลัยครับ
 
-<img src="/assets/freshmen-night1.jpg" alt="freshmen-night1">
+<img src="https://raw.githubusercontent.com/nakaptan/natpakan_site/main/assets/freshmen-night1.jpg" alt="freshmen-night1">
 
 <img src="/assets/freshmen-night2.jpg" alt="freshmen-night2">
 
