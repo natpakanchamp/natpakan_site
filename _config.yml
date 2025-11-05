@@ -22,8 +22,8 @@ title: Natpakan K.
 email: champnatpakan@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
 # Here for description.
-baseurl: "/natpakan_site" # the subpath of your site, e.g. /blog
-url: "https://nakaptan.github.io" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/" # the subpath of your site, e.g. /blog
+url: "https://natpakan-site.netlify.app" # the base hostname & protocol for your site, e.g. http://example.com
 instagram_username: _nakaptan
 github_username:  nakaptan
 
@@ -40,14 +40,16 @@ theme: minima
 # Excluded items can be processed by explicitly listing the directories or
 # their entries' file path in the `include:` list.
 #
-# exclude:
-#   - .sass-cache/
-#   - .jekyll-cache/
-#   - gemfiles/
-#   - Gemfile
-#   - Gemfile.lock
-#   - node_modules/
-#   - vendor/bundle/
-#   - vendor/cache/
-#   - vendor/gems/
-#   - vendor/ruby/
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - natpakan_site/
+  - .vscode/
