@@ -23,7 +23,7 @@ permalink: /activities/:year/:month/:day/:title/
 
 สำหรับการอำนวยความสะดวกเรื่องอาหาร ทางสถาบันฯ ได้จัดเตรียมอาหารทุกมื้อในรูปแบบบุฟเฟ่ต์ โดยมีอาหารหลากหลายประเภท ทั้งคาว หวาน และเครื่องดื่ม ให้เลือกรับประทานได้ตามอัธยาศัย เป็นหนึ่งในความประทับใจของค่ายสำหรับผมเลยครับ
 
-<img src="{{ "/assets/dining-hall01.jpeg" | relative_url }}" alt="">
+<img src="{{ "/assets/dining-hall.jpg" | relative_url }}" alt="">
 
 วันที่สอง (25/10/2565) จะมีการอบรมความรู้เกี่ยวกับ AI Starter Activity + AI For Life จะบรรยายเกี่ยวกับ AI มีความสำคัญยังไงกับโลกในปัจจุบันและอนาคต และจะปล่อยพักเบรคไปรับรับประทานอาหารว่างครับ
 
@@ -40,6 +40,6 @@ Your browser does not support the video tag.
 Your browser does not support the video tag.
 </video>
 <br>
-<img src="{{ "/assets/team-building-2.heic" | relative_url }}" alt="">
+<img src="{{ "/assets/team-building-2.jpg" | relative_url }}" alt="">
 
 1. การพัฒนาทักษะ Soft Skills: กิจกรรมส่วนใหญ่เน้นการทำงานเป็นทีม (Teamwork) และ การฝึกภาวะผู้นำ (Leadership) ผู้เข้าอบรมจะถูกแบ่งกลุ่ม คละสถาบัน คละจังหวัด เพื่อทำกิจกรรมและแก้ปัญหา (Case Study)
