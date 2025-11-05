@@ -1,5 +1,14 @@
-_site
-.sass-cache
-.jekyll-cache
-.jekyll-metadata
-vendor
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Jekyll
+_site/
+.jekyll-cache/
+Gemfile.lock
+
+# !! สำคัญ !!
+# เพิกเฉย "โฟลเดอร์ที่ซ้อนกัน" ที่ Git มันเห็น
+/natpakan_site/
