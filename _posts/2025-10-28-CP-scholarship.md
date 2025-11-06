@@ -31,7 +31,6 @@ permalink: /activities/:year/:month/:day/:title/
 
 <video 
   style="display: block; margin: 0 auto; width: 100%; height: auto;" 
-  controls
   autoplay
   loop
   muted
@@ -45,7 +44,6 @@ Your browser does not support the video tag.
 และตอนเย็นของในวันนี้จะมีกิจกรรม Team building เอาตรงๆก็คือกิจกรรมยืดเส้นยืดสายนั่นแหละครับ จะได้ทำความรู้จักกับเพื่อนๆในค่าย โดยกิจกรรมแต่ละฐานก็จะเน้นการทำงานเป็นทีม เช่น การวิ่งกระสอบ การล้อมรอบเป็นวงกลม หรือตักน้ำใส่ท่อที่เจาะรู แล้วเพื่อนๆในทีมต้องช่วยกันเอามืออุดไม่ให้น้ำไหลออก
 <video 
   style="display: block; margin: 0 auto; width: 100%; height: auto;" 
-  controls
   autoplay
   loop
   muted
