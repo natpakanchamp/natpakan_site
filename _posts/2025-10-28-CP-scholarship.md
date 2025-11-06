@@ -36,7 +36,7 @@ permalink: /activities/:year/:month/:day/:title/
   muted
   playsinline
   >
-  <source src="{{ "/assets/AI.MOV" | relative_url }}" type="video/mp4">
+  <source src="{{ "/assets/AI.mp4" | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
@@ -49,7 +49,7 @@ Your browser does not support the video tag.
   muted
   playsinline
   >
-  <source src="{{ "/assets/team-building.MOV" | relative_url }}" type="video/mp4">
+  <source src="{{ "/assets/team-building.mp4" | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 <br>
