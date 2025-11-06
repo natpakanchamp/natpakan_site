@@ -16,7 +16,7 @@ permalink: /activities/:year/:month/:day/:title/
 
 โดยกิจกรรมการอบรมตลอด 5วันนี้ จะประกอบไปด้วยหลักสูตรที่เข้มขันและเต็มไปด้วยกิจกรรมที่ออกแบบมาเป็นอย่างดี
 
-<img src="{{ "/assets/TrueDigitalPark.jpeg" | relative_url }}" alt="">
+<img src="{{ "/assets/TrueDigitalPark.jpg" | relative_url }}" alt="">
 
 วันที่หนึ่ง (24/10/2565) ในวันนี้จะมีพิธีรับเกียรติบัตรผู้ได้ทุน พวกเราจะได้พบกับผู้บริหารของเครือเจริญโภคภัณฑ์ และอดีตสมาชิกวุฒิสภา และคุณศุภชัย เจียรวนนท์จะเป็นคนมอบเกียรติบัตรให้กับผมครับ 
 <br>จัดขึ้นที่ ณ ทรู ดิจิทัล พาร์ค
@@ -29,13 +29,13 @@ permalink: /activities/:year/:month/:day/:title/
 
  จากนั้นจะเข้าสู่กิจกรรม Prompt Playground : AI Assistant โดยสอน prompt AI ยังไงให้ได้ประสิทธิภาพที่สุด และข้อควรระวังเกี่ยวกับปัญหา AI Hollucination
 
-<video width=740rem style="display: block; margin: 0 auto;" controls>
+<video style="display: block; margin: 0 auto; width: 100%; height: auto;" controls>
   <source src="{{ "/assets/AI.MOV" | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 <br>
 และตอนเย็นของในวันนี้จะมีกิจกรรม Team building เอาตรงๆก็คือกิจกรรมยืดเส้นยืดสายนั่นแหละครับ จะได้ทำความรู้จักกับเพื่อนๆในค่าย โดยกิจกรรมแต่ละฐานก็จะเน้นการทำงานเป็นทีม เช่น การวิ่งกระสอบ การล้อมรอบเป็นวงกลม หรือตักน้ำใส่ท่อที่เจาะรู แล้วเพื่อนๆในทีมต้องช่วยกันเอามืออุดไม่ให้น้ำไหลออก
-<video width=740 style="display: block; margin: 0 auto;" controls>
+<video style="display: block; margin: 0 auto; width: 100%; height: auto;" controls>
   <source src="{{ "/assets/team-building.MOV" | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
