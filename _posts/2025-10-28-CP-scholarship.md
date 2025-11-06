@@ -29,7 +29,7 @@ permalink: /activities/:year/:month/:day/:title/
 
  จากนั้นจะเข้าสู่กิจกรรม Prompt Playground : AI Assistant โดยสอน prompt AI ยังไงให้ได้ประสิทธิภาพที่สุด และข้อควรระวังเกี่ยวกับปัญหา AI Hollucination
 
-<video width=740 style="display: block; margin: 0 auto;" controls>
+<video width=740rem style="display: block; margin: 0 auto;" controls>
   <source src="{{ "/assets/AI.MOV" | relative_url }}" type="video/mp4">
 Your browser does not support the video tag.
 </video>
