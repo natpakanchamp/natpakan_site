@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "CP Scholarship"
+title:  "CP Scholarship Bootcamp 2025"
 date: 2025-10-28 16:00:00 +0700
 categories: 
     - activities
