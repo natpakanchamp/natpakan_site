@@ -4,6 +4,10 @@ layout: default
 <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
+    <link rel="stylesheet" href="{{ '/assets/main.css' | relative_url }}">
+      {% if page.page_css %}
+        <link rel="stylesheet" href="{{ page.page_css | relative_url }}">
+      {% endif %}
     <h1 class="post-title p-name" itemprop="name headline">{{ page.title | escape }}</h1>
     <p class="post-meta">
       <time class="dt-published" datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">

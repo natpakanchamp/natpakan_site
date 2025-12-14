@@ -14,7 +14,9 @@
     </main>
 
     {%- include footer.html -%}
-
+    {% if page.page_js %}
+      <script src="{{ page.page_js | relative_url }}"></script>
+    {% endif %}
   </body>
 
 </html>

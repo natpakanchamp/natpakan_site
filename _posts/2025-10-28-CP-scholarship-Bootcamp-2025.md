@@ -2,6 +2,8 @@
 layout: post
 title:  "CP Scholarship Bootcamp 2025"
 date: 2025-10-28 16:00:00 +0700
+page_css: /assets/css/style.css
+page_js: /assets/js/main.js
 categories: 
     - activities
 permalink: /activities/:year/:month/:day/:title/
@@ -78,3 +80,5 @@ Your browser does not support the video tag.
 เป็นเครื่องมือที่มีลักษณะการใช้งานหลายรูปแบบมากไม่ว่าจะใช้ในการแก้ปัญหาเชิงธุรกิจหรืออะไรก็ตาม เพื่อให้เกิดความชัดเจนและง่ายต่อการวิเคราะห์สาเหตุที่แท้จริงของปัญหาเพื่อหาแนวทางแก้ไขต่อไปครับ
 
 <img src="{{ "/assets/problem-solving03.png" | relative_url }}" alt="">
+
+และในช่วงบ่ายก่อนสี่โมง พวกเราจะได้ฝึก <b>Pitch Talk & Project Pitching Workshop </b>เป็นการคิดปัญหาที่ต้องการแก้ไขขึ้นมาเองและจะต้องอยู่ในเป้าหมายของ <a href="https://sdgs.un.org/goals">SDGs (Sustainable Development Goals)</a> คร่าวๆคือ  เป้าหมายการพัฒนาที่ยั่งยืนทั้งหมด 17 ข้อ ที่องค์การสหประชาชาติกำหนดขึ้นเพื่อยุติความยากจน ปกป้องโลก และสร้างสันติสุขและความเจริญรุ่งเรืองให้กับทุกคนภายในปี 2030
