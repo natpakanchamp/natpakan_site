@@ -82,3 +82,23 @@ Your browser does not support the video tag.
 <img src="{{ "/assets/problem-solving03.png" | relative_url }}" alt="">
 
 และในช่วงบ่ายก่อนสี่โมง พวกเราจะได้ฝึก <b>Pitch Talk & Project Pitching Workshop </b>เป็นการคิดปัญหาที่ต้องการแก้ไขขึ้นมาเองและจะต้องอยู่ในเป้าหมายของ <a href="https://sdgs.un.org/goals">SDGs (Sustainable Development Goals)</a> คร่าวๆคือ  เป้าหมายการพัฒนาที่ยั่งยืนทั้งหมด 17 ข้อ ที่องค์การสหประชาชาติกำหนดขึ้นเพื่อยุติความยากจน ปกป้องโลก และสร้างสันติสุขและความเจริญรุ่งเรืองให้กับทุกคนภายในปี 2030
+
+<b>วันที่สี่ (27/10/2568) กิจกรรม Personal Development</b>
+
+ก่อนเริ่มกิจกรรมที่จะจัดขึ้นในวันนี้ ตอนเช้าผมแวะมาปั่นจักรยาน ซึ่งทางสถาบันมีกิจกรรมออกกำลังกายให้สำหรับคนที่ต้องการออกกำลังกายตอนเช้าครับ
+<video 
+  style="display: block; margin: 0 auto; width: 100%; height: auto;" 
+  autoplay
+  loop
+  muted
+  playsinline
+  >
+  <source src="{{ "/assets/cp-27-10-2025.mp4" | relative_url }}" type="video/mp4">
+Your browser does not support the video tag.
+</video>
+<br>
+<b>กิจกรรม Personal Development</b> ที่มุ่งเน้นการพัฒนาบุคลิกภาพและความกล้าแสดงออก ควบคู่ไปกับทักษะการเข้าสังคมและการสื่อสารกับผู้ใหญ่ เพื่อสร้างความประทับใจผ่านการวางตัวที่เหมาะสม เรียนรู้ศิลปะการใช้วาทศิลป์ที่ผสมผสานความมั่นใจและความอ่อนน้อมถ่อมตนเข้าด้วยกัน บรรยายโดยคุณจีนา จีนาฟู เจ้าของ Auditorium<br>
+
+<img src="{{ "/assets/cp-27-10-2025-2.jpg" | relative_url }}" alt=""><br>
+
+<img src="{{ "/assets/cp-27-10-2025-3.jpg" | relative_url }}" alt="">
