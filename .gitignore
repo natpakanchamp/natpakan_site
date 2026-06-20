@@ -4,6 +4,9 @@
 # VS Code
 .vscode/
 
+# JetBrains IDE
+.idea/
+
 # Jekyll
 _site/
 .jekyll-cache/
