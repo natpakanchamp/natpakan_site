@@ -1,0 +1,149 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+
+@import "minima";
+
+/* ============================================================
+   Theme toggle button (lives inside the burger nav .trigger)
+   ============================================================ */
+.theme-toggle {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+}
+
+.site-nav .page-link.theme-toggle {
+  color: $text-color;
+}
+
+/* On desktop, separate the toggle from the last nav link */
+@media screen and (min-width: $on-palm) {
+  .site-nav .page-link.theme-toggle {
+    margin-left: 20px;
+  }
+}
+
+/* On mobile (burger open), match the stacked page-link layout */
+@include media-query($on-palm) {
+  .site-nav .page-link.theme-toggle {
+    display: block;
+    padding: 5px 10px;
+    margin-left: 20px;
+    width: calc(100% - 20px);
+  }
+}
+
+/* ============================================================
+   Dark mode — minima 2.5.2 ships fixed hex colors, so we
+   override the relevant selectors under [data-theme="dark"].
+   ============================================================ */
+html {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+[data-theme="dark"] {
+  $dark-bg:          #1b1b1b;
+  $dark-surface:     #262626;
+  $dark-text:        #e6e6e6;
+  $dark-grey:        #9a9a9a;
+  $dark-border:      #383838;
+  $dark-link:        #6cb4ff;
+  $dark-link-visit:  #93c8ff;
+
+  background-color: $dark-bg;
+  color: $dark-text;
+
+  body {
+    background-color: $dark-bg;
+    color: $dark-text;
+  }
+
+  .site-header {
+    border-top-color: $dark-border;
+    border-bottom-color: $dark-border;
+    background-color: $dark-bg;
+  }
+
+  .site-title,
+  .site-title:visited {
+    color: $dark-text;
+  }
+
+  .site-nav {
+    .menu-icon > svg path {
+      fill: $dark-grey;
+    }
+
+    .page-link {
+      color: $dark-text;
+    }
+
+    /* the dropdown panel shown when the burger is open (mobile) */
+    @include media-query($on-palm) {
+      background-color: $dark-surface;
+      border-color: $dark-border;
+    }
+  }
+
+  a {
+    color: $dark-link;
+
+    &:visited {
+      color: $dark-link-visit;
+    }
+
+    &:hover {
+      color: $dark-link-visit;
+    }
+  }
+
+  .post-meta,
+  .post-link,
+  .site-footer,
+  .footer-col-wrapper,
+  .post-list > li > .post-meta {
+    color: $dark-grey;
+  }
+
+  .post-link {
+    color: $dark-text;
+  }
+
+  blockquote {
+    color: $dark-grey;
+    border-left-color: $dark-border;
+  }
+
+  pre,
+  code {
+    background-color: $dark-surface;
+    border-color: $dark-border;
+  }
+
+  table {
+    color: $dark-text;
+    border-color: $dark-border;
+
+    th, td {
+      border-color: $dark-border;
+    }
+
+    th {
+      background-color: $dark-surface;
+    }
+
+    tr:nth-child(even) {
+      background-color: lighten($dark-bg, 4%);
+    }
+  }
+
+  hr {
+    border-color: $dark-border;
+  }
+}
