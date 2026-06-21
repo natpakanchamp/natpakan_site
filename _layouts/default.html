@@ -14,6 +14,20 @@
     </main>
 
     {%- include footer.html -%}
+
+    <script src="{{ '/assets/js/headroom.min.js' | relative_url }}"></script>
+    <script>
+      (function () {
+        var header = document.querySelector('.site-header');
+        if (header && window.Headroom) {
+          new Headroom(header, {
+            offset: 80,
+            tolerance: { up: 5, down: 0 }
+          }).init();
+        }
+      })();
+    </script>
+
     {% if page.page_js %}
       <script src="{{ page.page_js | relative_url }}"></script>
     {% endif %}

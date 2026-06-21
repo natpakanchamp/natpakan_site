@@ -5,6 +5,76 @@
 @import "minima";
 
 /* ============================================================
+   Floating navbar — glass pill that sticks while scrolling
+   ============================================================ */
+.site-header {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+
+  width: calc(100% - 2rem);
+  max-width: $content-width;
+
+  /* override minima's 5px top border + square edges */
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 14px;
+
+  background-color: rgba(253, 253, 253, 0.72);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  backdrop-filter: saturate(180%) blur(14px);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+
+  transition: transform 0.3s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  will-change: transform;
+
+  .wrapper {
+    padding-top: 4px;
+    padding-bottom: 4px;
+  }
+}
+
+/* ---- Headroom.js states: hide on scroll down, show on scroll up ---- */
+.site-header.headroom--pinned {
+  transform: translateX(-50%);
+}
+
+.site-header.headroom--unpinned {
+  transform: translate(-50%, calc(-100% - 1.5rem));
+}
+
+/* subtle shadow only once scrolled away from the very top */
+.site-header.headroom--top {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.site-header.headroom--not-top {
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+}
+
+/* push page content below the floating header */
+.page-content {
+  padding-top: 6rem;
+}
+
+@include media-query($on-palm) {
+  .site-header {
+    top: 0.6rem;
+    width: calc(100% - 1.2rem);
+    border-radius: 12px;
+  }
+  .page-content {
+    padding-top: 5rem;
+  }
+}
+
+[data-theme="dark"] .site-header {
+  border-color: rgba(255, 255, 255, 0.10);
+  background-color: rgba(27, 27, 27, 0.68);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* ============================================================
    Post media — center images & videos with consistent spacing
    ============================================================ */
 .post-content {
@@ -18,38 +88,97 @@
 }
 
 /* ============================================================
-   Theme toggle button (lives inside the burger nav .trigger)
+   Theme toggle — sliding day/night switch (in burger nav)
    ============================================================ */
 .theme-toggle {
-  background: none;
-  border: none;
+  --tt-w: 104px;
+  --tt-h: 40px;
+  --tt-knob: 34px;
+  --tt-gap: 3px;
+
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  width: var(--tt-w);
+  height: var(--tt-h);
   padding: 0;
-  margin: 0;
-  font: inherit;
+  margin-top: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
+  background-color: #e6e6e6;
+  color: #111;
   cursor: pointer;
-  color: inherit;
-  text-align: left;
+  font: inherit;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.25s ease, color 0.25s ease, border-color 0.25s ease;
 }
 
-.site-nav .page-link.theme-toggle {
-  color: $text-color;
+.theme-toggle__text {
+  width: 100%;
+  text-align: center;
+  padding: 0 42px 0 12px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
 }
 
-/* On desktop, separate the toggle from the last nav link */
+.theme-toggle__knob {
+  position: absolute;
+  top: var(--tt-gap);
+  left: var(--tt-gap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tt-knob);
+  height: var(--tt-knob);
+  border-radius: 50%;
+  background-color: #fff;
+  color: #1a1a1a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  /* day: knob on the right */
+  transform: translateX(calc(var(--tt-w) - var(--tt-knob) - (var(--tt-gap) * 2)));
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.theme-toggle .icon-moon { display: none; }
+.theme-toggle .icon-sun  { display: block; }
+
+/* desktop: sit inline, spaced from the last nav link */
 @media screen and (min-width: $on-palm) {
-  .site-nav .page-link.theme-toggle {
+  .theme-toggle {
+    margin-top: 0;
+    margin-left: 20px;
+    vertical-align: middle;
+  }
+}
+
+/* mobile (burger open): align with stacked links */
+@include media-query($on-palm) {
+  .theme-toggle {
     margin-left: 20px;
   }
 }
 
-/* On mobile (burger open), match the stacked page-link layout */
-@include media-query($on-palm) {
-  .site-nav .page-link.theme-toggle {
-    display: block;
-    padding: 5px 10px;
-    margin-left: 20px;
-    width: calc(100% - 20px);
+/* ---- Night mode: text flips right, knob slides left, moon shows ---- */
+[data-theme="dark"] {
+  .theme-toggle {
+    background-color: #0a0a0a;
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.18);
   }
+  .theme-toggle__text {
+    text-align: center;
+    padding: 0 12px 0 42px;
+  }
+  .theme-toggle__knob {
+    transform: translateX(0);
+  }
+  .theme-toggle .icon-sun  { display: none; }
+  .theme-toggle .icon-moon { display: block; }
 }
 
 /* ============================================================
@@ -75,12 +204,6 @@ html {
   body {
     background-color: $dark-bg;
     color: $dark-text;
-  }
-
-  .site-header {
-    border-top-color: $dark-border;
-    border-bottom-color: $dark-border;
-    background-color: $dark-bg;
   }
 
   .site-title,
