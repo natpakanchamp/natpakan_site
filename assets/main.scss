@@ -5,6 +5,19 @@
 @import "minima";
 
 /* ============================================================
+   Post media — center images & videos with consistent spacing
+   ============================================================ */
+.post-content {
+  img,
+  video {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 2rem auto;
+  }
+}
+
+/* ============================================================
    Theme toggle button (lives inside the burger nav .trigger)
    ============================================================ */
 .theme-toggle {

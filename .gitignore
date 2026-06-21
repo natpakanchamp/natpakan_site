@@ -7,6 +7,12 @@
 # JetBrains IDE
 .idea/
 
+# Source media (converted to .jpg/.mp4 for the web; keep originals local only)
+*.heic
+*.HEIC
+*.mov
+*.MOV
+
 # Jekyll
 _site/
 .jekyll-cache/
