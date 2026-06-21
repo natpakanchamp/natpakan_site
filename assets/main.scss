@@ -17,14 +17,14 @@
   width: calc(100% - 2rem);
   max-width: $content-width;
 
-  /* override minima's 5px top border + square edges */
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 14px;
+  /* --- Glass UI look (glassmorphism) --- */
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
 
-  background-color: rgba(253, 253, 253, 0.72);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-  backdrop-filter: saturate(180%) blur(14px);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.10);
+  background: rgba(255, 255, 255, 0.40);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
 
   transition: transform 0.3s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   will-change: transform;
@@ -44,34 +44,86 @@
   transform: translate(-50%, calc(-100% - 1.5rem));
 }
 
-/* subtle shadow only once scrolled away from the very top */
+/* glass shadow deepens once scrolled away from the very top */
 .site-header.headroom--top {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10);
 }
 .site-header.headroom--not-top {
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.22);
 }
 
 /* push page content below the floating header */
 .page-content {
-  padding-top: 6rem;
+  padding-top: 8rem;
 }
 
 @include media-query($on-palm) {
   .site-header {
     top: 0.6rem;
     width: calc(100% - 1.2rem);
-    border-radius: 12px;
+    border-radius: 999px;
   }
   .page-content {
-    padding-top: 5rem;
+    padding-top: 7rem;
   }
 }
 
 [data-theme="dark"] .site-header {
-  border-color: rgba(255, 255, 255, 0.10);
-  background-color: rgba(27, 27, 27, 0.68);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(20, 20, 20, 0.38);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* ---- Mobile burger: bare 3-line icon (no box), glass dropdown ---- */
+@include media-query($on-palm) {
+  .site-nav {
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    /* fill the navbar height and center the burger on the y-axis */
+    top: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  /* dropdown floats below the navbar (absolute, so opening it doesn't
+     shift the centered burger) — same glass as the navbar */
+  .site-nav input:checked ~ .trigger {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 12px;
+    padding: 8px 6px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    /* higher opacity so it reads as frosted as the navbar even where
+       nested backdrop-filter is disabled (Safari: ancestor has transform) */
+    background: rgba(244, 244, 246, 0.92);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    backdrop-filter: blur(12px) saturate(160%);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  }
+}
+
+[data-theme="dark"] .site-nav input:checked ~ .trigger {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(22, 22, 22, 0.92);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+}
+
+/* ---- Post view counter eye icon ---- */
+.post-views {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+}
+.post-views .icon-eye {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
 }
 
 /* ============================================================
@@ -85,6 +137,96 @@
     height: auto;
     margin: 2rem auto;
   }
+}
+
+/* opt-in: add class="full-bleed" to an <img>/<video> to break it out of the
+   text column.
+   - mobile: spans the full viewport width (edge to edge)
+   - desktop: capped at --bleed-max (the shell container width) and centered
+   The min() math keeps it centered on the viewport without a scrollbar. */
+.post-content .full-bleed {
+  --bleed-max: #{$content-width};
+  width: min(100vw, var(--bleed-max));
+  max-width: none;
+  margin-left: calc(50% - min(50vw, var(--bleed-max) / 2));
+  margin-right: 0;
+  border-radius: 0;
+}
+
+/* ============================================================
+   Image slider component
+   Usage:  <div class="slider"> <img ...> <img ...> </div>
+   Optional: style="aspect-ratio: 4/3" to change the shape.
+   ============================================================ */
+.slider {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  margin: 2rem auto;
+  overflow: hidden;
+  border-radius: 0;
+  background: rgba(0, 0, 0, 0.05);
+  cursor: grab;
+  touch-action: pan-y;        /* allow vertical scroll, capture horizontal swipe */
+}
+
+.slider:active {
+  cursor: grabbing;
+}
+
+.post-content .slider img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;            /* override the default post image spacing */
+  max-width: none;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+  border-radius: inherit;
+  /* block dragging / selecting the images */
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.post-content .slider img.is-active {
+  opacity: 1;
+}
+
+.slider__dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 2;
+}
+
+.slider__dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.slider__dot:hover {
+  transform: scale(1.2);
+}
+
+.slider__dot.is-active {
+  background: #fff;
 }
 
 /* ============================================================
@@ -151,7 +293,7 @@
 @media screen and (min-width: $on-palm) {
   .theme-toggle {
     margin-top: 0;
-    margin-left: 20px;
+    margin-right: 20px;
     vertical-align: middle;
   }
 }
@@ -218,12 +360,6 @@ html {
 
     .page-link {
       color: $dark-text;
-    }
-
-    /* the dropdown panel shown when the burger is open (mobile) */
-    @include media-query($on-palm) {
-      background-color: $dark-surface;
-      border-color: $dark-border;
     }
   }
 
