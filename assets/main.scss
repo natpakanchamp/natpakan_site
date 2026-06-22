@@ -4,6 +4,16 @@
 
 @import "minima";
 
+
+/* ---- Sarabun font for notebook / notes pages ---- */
+.notes-page,
+.notes-page .post-title,
+.notes-page .post-content,
+.notes-page .page-heading,
+.notes-page .home {
+  font-family: 'Sarabun', sans-serif;
+}
+
 /* ============================================================
    Floating navbar — glass pill that sticks while scrolling
    ============================================================ */
@@ -48,13 +58,14 @@
 .site-header.headroom--top {
   box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.10);
 }
+
 .site-header.headroom--not-top {
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.22);
 }
 
 /* push page content below the floating header */
 .page-content {
-  padding-top: 8rem;
+  padding-top: 7rem;
 }
 
 @include media-query($on-palm) {
@@ -63,8 +74,9 @@
     width: calc(100% - 1.2rem);
     border-radius: 999px;
   }
+
   .page-content {
-    padding-top: 7rem;
+    padding-top: 6rem;
   }
 }
 
@@ -91,7 +103,7 @@
 
   /* dropdown floats below the navbar (absolute, so opening it doesn't
      shift the centered burger) — same glass as the navbar */
-  .site-nav input:checked ~ .trigger {
+  .site-nav input:checked~.trigger {
     position: absolute;
     top: 100%;
     right: 0;
@@ -108,7 +120,7 @@
   }
 }
 
-[data-theme="dark"] .site-nav input:checked ~ .trigger {
+[data-theme="dark"] .site-nav input:checked~.trigger {
   border-color: rgba(255, 255, 255, 0.12);
   background: rgba(22, 22, 22, 0.92);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
@@ -120,6 +132,7 @@
   align-items: center;
   gap: 0.3em;
 }
+
 .post-views .icon-eye {
   width: 1.05em;
   height: 1.05em;
@@ -136,6 +149,7 @@
     max-width: 100%;
     height: auto;
     margin: 2rem auto;
+    background-color: #fff;
   }
 }
 
@@ -167,7 +181,8 @@
   border-radius: 0;
   background: rgba(0, 0, 0, 0.05);
   cursor: grab;
-  touch-action: pan-y;        /* allow vertical scroll, capture horizontal swipe */
+  touch-action: pan-y;
+  /* allow vertical scroll, capture horizontal swipe */
 }
 
 .slider:active {
@@ -179,7 +194,8 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  margin: 0;            /* override the default post image spacing */
+  margin: 0;
+  /* override the default post image spacing */
   max-width: none;
   object-fit: cover;
   opacity: 0;
@@ -286,8 +302,13 @@
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.theme-toggle .icon-moon { display: none; }
-.theme-toggle .icon-sun  { display: block; }
+.theme-toggle .icon-moon {
+  display: none;
+}
+
+.theme-toggle .icon-sun {
+  display: block;
+}
 
 /* desktop: sit inline, spaced from the last nav link */
 @media screen and (min-width: $on-palm) {
@@ -312,15 +333,23 @@
     color: #fff;
     border-color: rgba(255, 255, 255, 0.18);
   }
+
   .theme-toggle__text {
     text-align: center;
     padding: 0 12px 0 42px;
   }
+
   .theme-toggle__knob {
     transform: translateX(0);
   }
-  .theme-toggle .icon-sun  { display: none; }
-  .theme-toggle .icon-moon { display: block; }
+
+  .theme-toggle .icon-sun {
+    display: none;
+  }
+
+  .theme-toggle .icon-moon {
+    display: block;
+  }
 }
 
 /* ============================================================
@@ -332,13 +361,13 @@ html {
 }
 
 [data-theme="dark"] {
-  $dark-bg:          #1b1b1b;
-  $dark-surface:     #262626;
-  $dark-text:        #e6e6e6;
-  $dark-grey:        #9a9a9a;
-  $dark-border:      #383838;
-  $dark-link:        #6cb4ff;
-  $dark-link-visit:  #93c8ff;
+  $dark-bg: #1b1b1b;
+  $dark-surface: #262626;
+  $dark-text: #e6e6e6;
+  $dark-grey: #9a9a9a;
+  $dark-border: #383838;
+  $dark-link: #6cb4ff;
+  $dark-link-visit: #93c8ff;
 
   background-color: $dark-bg;
   color: $dark-text;
@@ -354,7 +383,7 @@ html {
   }
 
   .site-nav {
-    .menu-icon > svg path {
+    .menu-icon>svg path {
       fill: $dark-grey;
     }
 
@@ -379,7 +408,7 @@ html {
   .post-link,
   .site-footer,
   .footer-col-wrapper,
-  .post-list > li > .post-meta {
+  .post-list>li>.post-meta {
     color: $dark-grey;
   }
 
@@ -402,7 +431,8 @@ html {
     color: $dark-text;
     border-color: $dark-border;
 
-    th, td {
+    th,
+    td {
       border-color: $dark-border;
     }
 

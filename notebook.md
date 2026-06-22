@@ -1,19 +1,18 @@
 ---
 layout: default
+title: Notebook
+permalink: /notebook/
+nav_exclude: true
 ---
 
 <div class="home">
-  {%- if page.title -%}
-    <h1 class="page-heading">{{ page.title }}</h1>
-  {%- endif -%}
+  <h1 class="page-heading">Notebook</h1>
 
-  {{ content }}
 
-  {%- if site.posts.size > 0 -%}
-    <h2 class="post-list-heading">{{ page.list_title | default: "Posts" }}</h2>
+  {%- assign note_posts = site.categories.notes -%}
+  {%- if note_posts and note_posts.size > 0 -%}
     <ul class="post-list">
-      {%- for post in site.posts -%}
-      {%- unless post.categories contains "notes" -%}
+      {%- for post in note_posts -%}
       <li>
         {%- assign date_format = site.minima.date_format | default: "%b %-d, %Y" -%}
         <span class="post-meta">{{ post.date | date: date_format }}</span>
@@ -22,13 +21,10 @@ layout: default
             {{ post.title | escape }}
           </a>
         </h3>
-        {%- if site.show_excerpts -%}
-          {{ post.excerpt }}
-        {%- endif -%}
       </li>
-      {%- endunless -%}
       {%- endfor -%}
     </ul>
+  {%- else -%}
+    <p>ยังไม่มีบันทึกในขณะนี้</p>
   {%- endif -%}
-
 </div>

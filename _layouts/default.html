@@ -3,7 +3,7 @@
 
   {%- include head.html -%}
 
-  <body>
+  <body{% if page.categories contains 'notes' %} class="notes-page"{% elsif page.permalink == '/notebook/' %} class="notes-page"{% endif %}>
 
     {%- include header.html -%}
 
