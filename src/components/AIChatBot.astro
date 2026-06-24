@@ -1,0 +1,83 @@
+---
+// Reads post metadata from DOM at runtime — no props needed.
+// Mounted in BaseLayout so it appears on every page.
+---
+
+<div id="ai-chat-root">
+  <!-- Floating action button -->
+  <button
+    id="ai-chat-fab"
+    class="aic-fab"
+    aria-label="เปิด AI Assistant"
+    aria-expanded="false"
+    aria-controls="ai-chat-panel"
+  >
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+  </button>
+
+  <!-- Chat panel -->
+  <div
+    id="ai-chat-panel"
+    class="aic-panel"
+    role="dialog"
+    aria-label="AI Assistant"
+    aria-hidden="true"
+  >
+    <header class="aic-head">
+      <span class="aic-head-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8v4M12 16h.01"/>
+        </svg>
+        AI Assistant
+      </span>
+      <button class="aic-close" id="ai-chat-close" aria-label="ปิด">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </header>
+
+    <div id="ai-action-bar" class="aic-action-bar" hidden>
+      <button class="aic-action-btn" data-action="summary">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="21" y1="10" x2="3" y2="10"/><line x1="21" y1="6" x2="3" y2="6"/>
+          <line x1="21" y1="14" x2="3" y2="14"/><line x1="21" y1="18" x2="11" y2="18"/>
+        </svg>
+        สรุปเนื้อหา
+      </button>
+    </div>
+
+    <div id="ai-chat-messages" class="aic-messages" aria-live="polite" aria-label="ข้อความ"></div>
+
+    <form id="ai-chat-form" class="aic-form">
+      <textarea
+        id="ai-chat-input"
+        class="aic-textarea"
+        placeholder="ถามเกี่ยวกับบทความนี้..."
+        rows="1"
+        aria-label="ข้อความถึง AI"
+      ></textarea>
+      <button type="submit" class="aic-send" aria-label="ส่ง">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Selection tooltip (mounted at body level to avoid stacking context issues) -->
+<div id="ai-sel-tip" class="aic-sel-tip" aria-hidden="true">
+  <button id="ai-sel-btn" class="aic-sel-btn">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/>
+    </svg>
+    ขยายความ
+  </button>
+</div>
+
+<link rel="stylesheet" href="/assets/css/ai-chat.css" />
+<script src="/assets/js/ai-chat.js" defer></script>
