@@ -132,3 +132,148 @@
   font-size: 1rem;
   opacity: 0.92;
 }
+
+/* ══════════════════════════════════════════════════════════════════
+   Interactive Visualization Widgets
+   ══════════════════════════════════════════════════════════════════ */
+
+[id^="vis-"] {
+  margin: 2rem 0;
+  border: 1px solid rgba(127, 127, 127, 0.28);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-surface);
+  font-family: var(--sarabun-stack);
+}
+
+.dlv-head {
+  padding: 0.55rem 1rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.2);
+  background: rgba(127, 127, 127, 0.05);
+  letter-spacing: 0.01em;
+}
+
+.dlv-canvas {
+  display: block;
+  width: 100%;
+  background: var(--color-bg);
+}
+
+.dlv-foot {
+  padding: 0.65rem 1rem 0.8rem;
+  border-top: 1px solid rgba(127, 127, 127, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.dlv-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+
+.dlv-btns {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.dlv-btn {
+  padding: 0.22rem 0.7rem;
+  border: 1px solid rgba(127, 127, 127, 0.38);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: var(--sarabun-stack);
+  transition: background 0.14s, color 0.14s, border-color 0.14s;
+  line-height: 1.5;
+}
+.dlv-btn:hover {
+  background: var(--color-link);
+  color: #fff;
+  border-color: var(--color-link);
+}
+.dlv-btn:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+.dlv-btn-p {
+  background: var(--color-link);
+  color: #fff !important;
+  border-color: var(--color-link);
+}
+.dlv-btn-p:hover {
+  opacity: 0.88;
+}
+
+.dlv-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+}
+
+.dlv-slider {
+  width: 96px;
+  accent-color: var(--color-link);
+  vertical-align: middle;
+}
+
+.dlv-select {
+  padding: 0.18rem 0.45rem;
+  border: 1px solid rgba(127, 127, 127, 0.38);
+  border-radius: 4px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.82rem;
+  font-family: var(--sarabun-stack);
+}
+
+.dlv-info {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+.dlv-hint {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0;
+}
+
+.dlv-compute {
+  font-size: 0.76rem;
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+  color: var(--color-text-muted);
+  min-height: 1.3rem;
+  word-break: break-all;
+}
+
+/* Backprop step info box */
+.dlv-step-box {
+  padding: 0.65rem 1rem;
+  border-top: 1px solid rgba(127, 127, 127, 0.15);
+  background: rgba(127, 127, 127, 0.03);
+  font-size: 0.82rem;
+  line-height: 1.65;
+  min-height: 4.5rem;
+}
+.dlv-step-box strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.84rem;
+}
+.dlv-step-box code {
+  font-size: 0.74rem;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-text-muted);
+  font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+}
