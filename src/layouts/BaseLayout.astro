@@ -1,7 +1,6 @@
 ---
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
-import AIChatBot from '@/components/AIChatBot.astro';
 import '@/styles/global.css';
 
 interface Props {
@@ -17,7 +16,7 @@ const { title, description = 'Natpakan K.', isNotesPage = false } = Astro.props;
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
     <meta name="description" content={description} />
     <title>{title} | Natpakan K.</title>
 
@@ -73,7 +72,5 @@ const { title, description = 'Natpakan K.', isNotesPage = false } = Astro.props;
 
     <!-- Slider: init all .slider elements on the page -->
     <script src="/assets/js/slider.js" defer></script>
-
-    <AIChatBot />
   </body>
 </html>

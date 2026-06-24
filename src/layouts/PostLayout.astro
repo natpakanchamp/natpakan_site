@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import PostViews from '@/components/PostViews.astro';
+import AIChatBot from '@/components/AIChatBot.astro';
 
 interface Props {
   title: string;
@@ -58,4 +59,5 @@ const dateFormat = new Intl.DateTimeFormat('en-US', {
   </article>
 
   {pageJs && <script src={pageJs} type="module"></script>}
+  <AIChatBot />
 </BaseLayout>

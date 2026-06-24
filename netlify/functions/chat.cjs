@@ -1,7 +1,6 @@
-'use strict';
 
 const FIREBASE_PROJECT = 'natpakan-site';
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 const CORS = {
@@ -48,7 +47,11 @@ async function callGemini(systemText, turns) {
   const body = {
     system_instruction: { parts: [{ text: systemText }] },
     contents: turns,
-    generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+    generationConfig: {
+      maxOutputTokens: 4096,
+      temperature: 1.0,
+      thinkingConfig: { thinkingBudget: 0 },
+    },
   };
 
   const res = await fetch(url, {
@@ -63,7 +66,10 @@ async function callGemini(systemText, turns) {
   }
 
   const data = await res.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+  // Gemini 2.5 Flash may include thought parts — find the first text-only part
+  const parts = data.candidates?.[0]?.content?.parts || [];
+  const textPart = parts.find(p => p.text && !p.thought);
+  return textPart?.text?.trim() || '';
 }
 
 // ── Prompt builders ──

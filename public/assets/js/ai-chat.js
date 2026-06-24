@@ -96,7 +96,12 @@
       body: JSON.stringify(payload),
     });
 
-    var data = await res.json();
+    var data;
+    try {
+      data = await res.json();
+    } catch (_) {
+      throw new Error('Server error ' + res.status);
+    }
 
     if (!res.ok) throw new Error(data.error || 'Server error');
     return data;
