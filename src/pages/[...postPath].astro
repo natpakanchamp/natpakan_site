@@ -1,0 +1,46 @@
+---
+import { getCollection } from 'astro:content';
+import PostLayout from '@/layouts/PostLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+
+  return posts.map(post => {
+    // Extract YYYY/MM/DD from filename (avoids UTC timezone shift issues)
+    const dateMatch = post.slug.match(/^(\d{4})-(\d{2})-(\d{2})-/);
+    const [year, month, day] = dateMatch
+      ? [dateMatch[1], dateMatch[2], dateMatch[3]]
+      : ['0000', '00', '00'];
+
+    const titleSlug = post.slug.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+
+    const categories = post.data.categories ?? [];
+    const catSegment = categories.includes('notes') ? 'notes' : 'activities';
+
+    const postPath = `${catSegment}/${year}/${month}/${day}/${titleSlug}`;
+
+    return {
+      params: { postPath },
+      props: { post },
+    };
+  });
+}
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+
+const isNotesPage = post.data.categories?.includes('notes') ?? false;
+const titleSlug = post.slug.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+---
+
+<PostLayout
+  title={post.data.title}
+  date={post.data.date}
+  author={post.data.author}
+  slug={titleSlug}
+  pageCss={post.data.page_css}
+  pageJs={post.data.page_js}
+  isNotesPage={isNotesPage}
+>
+  <Content />
+</PostLayout>

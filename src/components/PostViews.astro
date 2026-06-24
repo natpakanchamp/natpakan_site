@@ -1,0 +1,66 @@
+---
+interface Props {
+  slug: string;
+}
+const { slug } = Astro.props;
+---
+
+<span class="post-views">
+  <svg
+    class="icon-eye"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M1.5 12S5.5 4.5 12 4.5 22.5 12 22.5 12 18.5 19.5 12 19.5 1.5 12 1.5 12z"/>
+    <circle cx="12" cy="12" r="3.5"/>
+  </svg>
+  <span id="post-views" data-slug={slug}>…</span> views
+</span>
+
+<script>
+  import { initializeApp, getApps } from 'firebase/app';
+  import { getFirestore, doc, getDoc, setDoc, increment } from 'firebase/firestore';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAeB2-USDpYeUBULFrWAhu6qptrPWKSMA4",
+    authDomain: "natpakan-site.firebaseapp.com",
+    projectId: "natpakan-site",
+    storageBucket: "natpakan-site.firebasestorage.app",
+    messagingSenderId: "591743203958",
+    appId: "1:591743203958:web:d6d9fb743c2ec4918dfd57",
+  };
+
+  (async function () {
+    const el = document.getElementById('post-views');
+    if (!el) return;
+
+    const slug = el.getAttribute('data-slug');
+    if (!slug) return;
+
+    try {
+      const app = getApps().length ? getApps()[0]! : initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+      const ref = doc(db, 'pageViews', slug);
+
+      const sessionKey = 'viewed:' + slug;
+      if (!sessionStorage.getItem(sessionKey)) {
+        await setDoc(ref, { count: increment(1) }, { merge: true });
+        sessionStorage.setItem(sessionKey, '1');
+      }
+
+      const snap = await getDoc(ref);
+      const count = (snap.exists() && (snap.data() as { count?: number }).count) || 0;
+      el.textContent = count.toLocaleString();
+    } catch (err) {
+      el.textContent = '—';
+      console.error('[post-views]', err);
+    }
+  })();
+</script>

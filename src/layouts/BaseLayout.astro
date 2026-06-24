@@ -1,0 +1,76 @@
+---
+import Header from '@/components/Header.astro';
+import Footer from '@/components/Footer.astro';
+import '@/styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  isNotesPage?: boolean;
+}
+
+const { title, description = 'Natpakan K.', isNotesPage = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title} | Natpakan K.</title>
+
+    <!-- Anti-FOUC: apply saved theme before paint -->
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          if (!stored) {
+            stored = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
+              ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', stored);
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Sarabun font (Google Fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Sarabun:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
+    />
+
+    <slot name="head" />
+  </head>
+
+  <body class={isNotesPage ? 'notes-page' : ''}>
+    <Header />
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <slot />
+      </div>
+    </main>
+
+    <Footer />
+
+    <!-- Headroom: hide navbar on scroll down -->
+    <script src="/assets/js/headroom.min.js" is:inline></script>
+    <script is:inline>
+      (function () {
+        var header = document.querySelector('.site-header');
+        if (header && window.Headroom) {
+          new Headroom(header, {
+            offset: 80,
+            tolerance: { up: 5, down: 0 }
+          }).init();
+        }
+      })();
+    </script>
+
+    <!-- Slider: init all .slider elements on the page -->
+    <script src="/assets/js/slider.js" defer></script>
+  </body>
+</html>

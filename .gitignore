@@ -1,23 +1,9 @@
-# macOS
-.DS_Store
-
-# VS Code
-.vscode/
-
-# JetBrains IDE
+dist/
+.netlify/
+node_modules/
+.astro/
 .idea/
-
-# Source media (converted to .jpg/.mp4 for the web; keep originals local only)
-*.heic
-*.HEIC
-*.mov
-*.MOV
-
-# Jekyll
-_site/
-.jekyll-cache/
-Gemfile.lock
-
-# !! สำคัญ !!
-# เพิกเฉย "โฟลเดอร์ที่ซ้อนกัน" ที่ Git มันเห็น
-/natpakan_site/
+.DS_Store
+.env
+.env.*
+!.env.example

@@ -1,0 +1,45 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+const allPosts = await getCollection('posts');
+const notes = allPosts
+  .filter(p => p.data.categories?.includes('notes'))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+
+function noteUrl(slug: string): string {
+  const m = slug.match(/^(\d{4})-(\d{2})-(\d{2})-(.+)$/);
+  if (!m) return `/notes/${slug}/`;
+  const [, year, month, day, title] = m;
+  return `/notes/${year}/${month}/${day}/${title}/`;
+}
+---
+
+<BaseLayout title="Notebook">
+  <div class="home">
+    <h1 class="page-heading">Notebook</h1>
+
+    {notes.length > 0 ? (
+      <ul class="post-list">
+        {notes.map(post => (
+          <li>
+            <span class="post-meta">{dateFormat.format(post.data.date)}</span>
+            <h3>
+              <a class="post-link" href={noteUrl(post.slug)}>
+                {post.data.title}
+              </a>
+            </h3>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p>ยังไม่มีบันทึกในขณะนี้</p>
+    )}
+  </div>
+</BaseLayout>

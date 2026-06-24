@@ -1,0 +1,61 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import PostViews from '@/components/PostViews.astro';
+
+interface Props {
+  title: string;
+  date: Date;
+  author?: string;
+  slug: string;
+  pageCss?: string;
+  pageJs?: string;
+  isNotesPage?: boolean;
+}
+
+const { title, date, author, slug, pageCss, pageJs, isNotesPage = false } = Astro.props;
+
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+---
+
+<BaseLayout title={title} isNotesPage={isNotesPage}>
+  <Fragment slot="head">
+    {pageCss && <link rel="stylesheet" href={pageCss} />}
+  </Fragment>
+
+  <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+    <header class="post-header">
+      <h1 class="post-title p-name" itemprop="name headline">{title}</h1>
+      <p class="post-meta">
+        <time
+          class="dt-published"
+          datetime={date.toISOString()}
+          itemprop="datePublished"
+        >
+          {dateFormat.format(date)}
+        </time>
+        {author && (
+          <>
+            {' '}•{' '}
+            <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+              <span class="p-author h-card" itemprop="name">{author}</span>
+            </span>
+          </>
+        )}
+        {' '}•{' '}
+        <PostViews slug={slug} />
+      </p>
+    </header>
+
+    <div class="post-content e-content" itemprop="articleBody">
+      <slot />
+    </div>
+
+    <a class="u-url" href={Astro.url.pathname} hidden></a>
+  </article>
+
+  {pageJs && <script src={pageJs} type="module"></script>}
+</BaseLayout>

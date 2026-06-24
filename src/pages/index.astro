@@ -1,0 +1,8 @@
+---
+import { getCollection } from 'astro:content';
+import HomeLayout from '@/layouts/HomeLayout.astro';
+
+const posts = await getCollection('posts');
+---
+
+<HomeLayout posts={posts} />

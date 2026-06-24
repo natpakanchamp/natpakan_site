@@ -1,0 +1,81 @@
+---
+const navPages = [
+  { title: 'About', url: '/about/' },
+];
+---
+
+<header class="site-header" role="banner">
+  <div class="wrapper">
+    <a class="site-title" rel="author" href="/">Natpakan K.</a>
+
+    <nav class="site-nav" aria-label="Main navigation">
+      <label for="nav-trigger" class="menu-icon" aria-label="Open menu">
+        <svg viewBox="0 0 18 15" width="18" height="15" aria-hidden="true">
+          <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+        </svg>
+      </label>
+      <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+
+      <div class="trigger">
+        <button
+          type="button"
+          class="theme-toggle"
+          id="theme-toggle"
+          role="switch"
+          aria-label="Toggle day and night mode"
+          aria-checked="false"
+        >
+          <span class="theme-toggle__text">DAY</span>
+          <span class="theme-toggle__knob">
+            <svg class="icon-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4"/>
+              <path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+              <path d="M18 3.3l.6 1.6 1.6.6-1.6.6-.6 1.6-.6-1.6-1.6-.6 1.6-.6z" stroke-width="1.3"/>
+            </svg>
+          </span>
+        </button>
+
+        {navPages.map(p => (
+          <a class="page-link" href={p.url}>{p.title}</a>
+        ))}
+      </div>
+    </nav>
+  </div>
+</header>
+
+<script>
+  // Theme toggle
+  (function () {
+    const btn = document.getElementById('theme-toggle') as HTMLButtonElement | null;
+    if (!btn) return;
+    const text = btn.querySelector('.theme-toggle__text');
+
+    function syncState() {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (text) text.textContent = isDark ? 'NIGHT' : 'DAY';
+      btn!.setAttribute('aria-checked', isDark ? 'true' : 'false');
+    }
+
+    syncState();
+
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      const next = isDark ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      try { localStorage.setItem('theme', next); } catch (e) {}
+      syncState();
+    });
+  })();
+
+  // Close burger on scroll
+  (function () {
+    const navTrigger = document.getElementById('nav-trigger') as HTMLInputElement | null;
+    if (!navTrigger) return;
+    window.addEventListener('scroll', () => {
+      if (navTrigger.checked) navTrigger.checked = false;
+    }, { passive: true });
+  })();
+</script>

@@ -1,0 +1,53 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  posts: CollectionEntry<'posts'>[];
+}
+
+const { posts } = Astro.props;
+
+const dateFormat = new Intl.DateTimeFormat('en-US', {
+  month: 'short',
+  day: 'numeric',
+  year: 'numeric',
+});
+
+function postUrl(slug: string, categories: string[]): string {
+  const m = slug.match(/^(\d{4})-(\d{2})-(\d{2})-(.+)$/);
+  if (!m) return `/posts/${slug}/`;
+  const [, year, month, day, title] = m;
+  const cat = categories.includes('notes') ? 'notes' : 'activities';
+  return `/${cat}/${year}/${month}/${day}/${title}/`;
+}
+
+// filter out notes, sort newest first
+const blogPosts = posts
+  .filter(p => !p.data.categories?.includes('notes'))
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="Home">
+  <div class="home">
+    <slot />
+
+    {blogPosts.length > 0 && (
+      <>
+        <h2 class="post-list-heading">Posts</h2>
+        <ul class="post-list">
+          {blogPosts.map(post => (
+            <li>
+              <span class="post-meta">{dateFormat.format(post.data.date)}</span>
+              <h3>
+                <a class="post-link" href={postUrl(post.slug, post.data.categories ?? [])}>
+                  {post.data.title}
+                </a>
+              </h3>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </div>
+</BaseLayout>
