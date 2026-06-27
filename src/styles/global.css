@@ -244,6 +244,12 @@ ul, ol {
 
 .nav-trigger { display: none; }
 
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
 .page-link {
   padding: 0.3rem 0.6rem;
   font-size: var(--text-sm);
