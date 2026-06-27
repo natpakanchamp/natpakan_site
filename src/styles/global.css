@@ -378,18 +378,19 @@ ul, ol {
 
 .tt-ball {
   position: absolute;
-  top: var(--tt-edge);
+  top: 50%;
   left: var(--tt-edge);
   width: var(--tt-ball);
   height: var(--tt-ball);
   background: #fff;
   border-radius: 50%;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  transform: translateY(-50%);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .theme-toggle-checkbox:checked + .theme-toggle-label .tt-ball {
-  transform: translateX(var(--tt-travel));
+  transform: translate(var(--tt-travel), -50%);
 }
 
 [data-theme="dark"] .theme-toggle-label {
