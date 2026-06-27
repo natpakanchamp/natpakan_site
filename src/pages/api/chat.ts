@@ -53,19 +53,24 @@ async function callGemini(apiKey: string, systemText: string, turns: unknown[]) 
   return parts.find((p) => p.text && !p.thought)?.text?.trim() || '';
 }
 
-const CREATOR_CONTEXT = `
-ข้อมูลเจ้าของเว็บไซต์:
+const CREATOR_CONTEXT = `ข้อมูลเจ้าของเว็บไซต์:
 - ชื่อ: ณัฐปคัลภ์ กันทะศร (Natpakan Kanthason)
 - กำลังศึกษาอยู่ชั้นปีที่ 2 ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเชียงใหม่
 - มีความสนใจด้าน Software Development, Artificial Intelligence และ Hardware Engineering
-- เว็บไซต์นี้เป็น personal blog สำหรับบันทึกความรู้ กิจกรรม และโน้ตการเรียน
-`.trim();
+- เว็บไซต์นี้เป็น personal blog สำหรับบันทึกความรู้ กิจกรรม และโน้ตการเรียน`;
+
+const CREATOR_KEYWORDS = ['ผู้สร้าง', 'เจ้าของ', 'ณัฐปคัลภ์', 'natpakan', 'นักศึกษา', 'วิศวกรรม', 'ใคร', 'คุณคือใคร', 'ทำเว็บ', 'เว็บนี้ของใคร'];
+
+function isCreatorQuery(messages: { role: string; content: string }[]): boolean {
+  const last = messages[messages.length - 1]?.content?.toLowerCase() || '';
+  return CREATOR_KEYWORDS.some((k) => last.includes(k.toLowerCase()));
+}
 
 function systemPrompt({ title, isNotebook }: { title: string; isNotebook: boolean }) {
   if (isNotebook) {
-    return `คุณเป็นผู้ช่วยอธิบายเนื้อหาวิทยาศาสตร์และคณิตศาสตร์ภาษาไทย ตอบกระชับและชัดเจน ใช้ภาษาไทยเป็นหลัก อธิบายด้วยตัวอย่างง่ายๆ เมื่อเป็นไปได้ บทความปัจจุบันคือ "${title}"\n\n${CREATOR_CONTEXT}`;
+    return `คุณเป็นผู้ช่วยอธิบายเนื้อหาวิทยาศาสตร์และคณิตศาสตร์ภาษาไทย ตอบกระชับและชัดเจน ใช้ภาษาไทยเป็นหลัก อธิบายด้วยตัวอย่างง่ายๆ เมื่อเป็นไปได้ บทความปัจจุบันคือ "${title}"`;
   }
-  return `คุณเป็นผู้ช่วยสรุปและตอบคำถามเกี่ยวกับบล็อกโพสต์ภาษาไทย ตอบกระชับและชัดเจน บทความปัจจุบันคือ "${title}"\n\n${CREATOR_CONTEXT}`;
+  return `คุณเป็นผู้ช่วยสรุปและตอบคำถามเกี่ยวกับบล็อกโพสต์ภาษาไทย ตอบกระชับและชัดเจน บทความปัจจุบันคือ "${title}"`;
 }
 
 function buildTurns(mode: string, context: Record<string, string>, messages: { role: string; content: string }[]) {
@@ -77,7 +82,9 @@ function buildTurns(mode: string, context: Record<string, string>, messages: { r
     const surrounding = context.surroundingText ? `บริบทโดยรอบ:\n${context.surroundingText}\n\n` : '';
     return [{ role: 'user', parts: [{ text: `${heading}${surrounding}ช่วยอธิบายส่วนนี้ให้ละเอียดขึ้น:\n"${context.selectedText}"` }] }];
   }
-  const ctxMsg = { role: 'user', parts: [{ text: `บริบทบทความ:\n${context.articleText.slice(0, 2000)}` }] };
+  // chat mode: inject creator context only when the question is about the creator
+  const creatorNote = isCreatorQuery(messages) ? `\n\n${CREATOR_CONTEXT}` : '';
+  const ctxMsg = { role: 'user', parts: [{ text: `บริบทบทความ:\n${context.articleText.slice(0, 2000)}${creatorNote}` }] };
   const ctxAck = { role: 'model', parts: [{ text: 'รับทราบ ฉันพร้อมตอบคำถามเกี่ยวกับบทความนี้แล้ว' }] };
   const history = (messages || []).map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] }));
   return [ctxMsg, ctxAck, ...history];
