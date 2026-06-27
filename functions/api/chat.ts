@@ -1,7 +1,6 @@
-
 const FIREBASE_PROJECT = 'natpakan-site';
 const GEMINI_MODEL = 'gemini-2.5-flash';
-const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -9,27 +8,26 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-function json(statusCode, body) {
-  return {
-    statusCode,
+function json(statusCode: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status: statusCode,
     headers: { ...CORS, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  };
+  });
 }
 
-// ── Firestore REST (public read/write rules same as pageViews collection) ──
+// ── Firestore REST ──
 
-async function fsGet(collection, docId) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/${collection}/${docId}`;
-  const res = await fetch(url);
+const BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
+
+async function fsGet(collection: string, docId: string) {
+  const res = await fetch(`${BASE}/${collection}/${docId}`);
   if (!res.ok) return null;
-  const data = await res.json();
+  const data = await res.json() as { fields?: Record<string, unknown> };
   return data.fields || null;
 }
 
-async function fsSet(collection, docId, fields) {
-  const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/${collection}/${docId}`;
-  await fetch(url, {
+async function fsSet(collection: string, docId: string, fields: Record<string, unknown>) {
+  await fetch(`${BASE}/${collection}/${docId}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ fields }),
@@ -38,11 +36,8 @@ async function fsSet(collection, docId, fields) {
 
 // ── Gemini REST ──
 
-async function callGemini(systemText, turns) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY not set');
-
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`;
+async function callGemini(apiKey: string, systemText: string, turns: unknown[]) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
 
   const body = {
     system_instruction: { parts: [{ text: systemText }] },
@@ -65,16 +60,15 @@ async function callGemini(systemText, turns) {
     throw new Error(`Gemini ${res.status}: ${err}`);
   }
 
-  const data = await res.json();
-  // Gemini 2.5 Flash may include thought parts — find the first text-only part
+  const data = await res.json() as { candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[] };
   const parts = data.candidates?.[0]?.content?.parts || [];
-  const textPart = parts.find(p => p.text && !p.thought);
+  const textPart = parts.find((p) => p.text && !p.thought);
   return textPart?.text?.trim() || '';
 }
 
 // ── Prompt builders ──
 
-function systemPrompt({ title, isNotebook }) {
+function systemPrompt({ title, isNotebook }: { title: string; isNotebook: boolean }) {
   if (isNotebook) {
     return (
       `คุณเป็นผู้ช่วยอธิบายเนื้อหาวิทยาศาสตร์และคณิตศาสตร์ภาษาไทย ` +
@@ -88,7 +82,7 @@ function systemPrompt({ title, isNotebook }) {
   );
 }
 
-function buildTurns(mode, context, messages) {
+function buildTurns(mode: string, context: Record<string, string>, messages: { role: string; content: string }[]) {
   if (mode === 'summary') {
     return [{ role: 'user', parts: [{ text: `สรุปเนื้อหาบทความนี้ให้กระชับและเข้าใจง่าย:\n\n${context.articleText}` }] }];
   }
@@ -102,10 +96,9 @@ function buildTurns(mode, context, messages) {
     }];
   }
 
-  // chat: multi-turn with article context injected as first user message
   const ctxMsg = { role: 'user', parts: [{ text: `บริบทบทความ:\n${context.articleText.slice(0, 2000)}` }] };
   const ctxAck = { role: 'model', parts: [{ text: 'รับทราบ ฉันพร้อมตอบคำถามเกี่ยวกับบทความนี้แล้ว' }] };
-  const history = (messages || []).map(m => ({
+  const history = (messages || []).map((m) => ({
     role: m.role === 'user' ? 'user' : 'model',
     parts: [{ text: m.content }],
   }));
@@ -114,25 +107,31 @@ function buildTurns(mode, context, messages) {
 
 // ── Handler ──
 
-exports.handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: CORS, body: '' };
+interface Env {
+  GEMINI_API_KEY: string;
+}
+
+export const onRequest: PagesFunction<Env> = async (context) => {
+  const { request, env } = context;
+
+  if (request.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS });
   }
 
-  if (event.httpMethod !== 'POST') {
+  if (request.method !== 'POST') {
     return json(405, { error: 'Method Not Allowed' });
   }
 
-  let payload;
+  let payload: { mode?: string; post?: { slug?: string; title: string; isNotebook: boolean }; context?: Record<string, string>; messages?: { role: string; content: string }[] };
   try {
-    payload = JSON.parse(event.body || '{}');
+    payload = await request.json();
   } catch {
     return json(400, { error: 'Invalid JSON' });
   }
 
-  const { mode, post, context, messages } = payload;
+  const { mode, post, context: ctx, messages } = payload;
 
-  if (!mode || !post || !context) {
+  if (!mode || !post || !ctx) {
     return json(400, { error: 'Missing required fields: mode, post, context' });
   }
 
@@ -140,10 +139,14 @@ exports.handler = async (event) => {
     return json(400, { error: 'Invalid mode' });
   }
 
+  const apiKey = env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return json(500, { error: 'GEMINI_API_KEY not configured' });
+  }
+
   try {
-    // Summary: check Firestore cache
     if (mode === 'summary' && post.slug) {
-      const cached = await fsGet('aiSummaries', post.slug);
+      const cached = await fsGet('aiSummaries', post.slug) as Record<string, { stringValue?: string; integerValue?: string }> | null;
       if (cached) {
         const ts = Number(cached.generatedAt?.integerValue || 0);
         if (Date.now() - ts < CACHE_TTL_MS) {
@@ -153,10 +156,9 @@ exports.handler = async (event) => {
     }
 
     const sys = systemPrompt(post);
-    const turns = buildTurns(mode, context, messages);
-    const reply = await callGemini(sys, turns);
+    const turns = buildTurns(mode, ctx, messages || []);
+    const reply = await callGemini(apiKey, sys, turns);
 
-    // Cache summary
     if (mode === 'summary' && post.slug && reply) {
       await fsSet('aiSummaries', post.slug, {
         summary: { stringValue: reply },
@@ -167,7 +169,7 @@ exports.handler = async (event) => {
 
     return json(200, { reply });
   } catch (err) {
-    console.error('[chat function]', err.message);
+    console.error('[chat function]', (err as Error).message);
     return json(500, { error: 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง' });
   }
 };

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var ENDPOINT = '/.netlify/functions/chat';
+  var ENDPOINT = '/api/chat';
 
   // ── Context extraction ─────────────────────────────────────────────────────
 

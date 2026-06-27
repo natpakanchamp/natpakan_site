@@ -25,18 +25,6 @@ const { slug } = Astro.props;
 </span>
 
 <script>
-  import { initializeApp, getApps } from 'firebase/app';
-  import { getFirestore, doc, getDoc, setDoc, increment } from 'firebase/firestore';
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAeB2-USDpYeUBULFrWAhu6qptrPWKSMA4",
-    authDomain: "natpakan-site.firebaseapp.com",
-    projectId: "natpakan-site",
-    storageBucket: "natpakan-site.firebasestorage.app",
-    messagingSenderId: "591743203958",
-    appId: "1:591743203958:web:d6d9fb743c2ec4918dfd57",
-  };
-
   (async function () {
     const el = document.getElementById('post-views');
     if (!el) return;
@@ -45,18 +33,18 @@ const { slug } = Astro.props;
     if (!slug) return;
 
     try {
-      const app = getApps().length ? getApps()[0]! : initializeApp(firebaseConfig);
-      const db = getFirestore(app);
-      const ref = doc(db, 'pageViews', slug);
+      const res = await fetch('/api/track-view', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      });
 
-      const sessionKey = 'viewed:' + slug;
-      if (!sessionStorage.getItem(sessionKey)) {
-        await setDoc(ref, { count: increment(1) }, { merge: true });
-        sessionStorage.setItem(sessionKey, '1');
+      if (!res.ok) {
+        el.textContent = '—';
+        return;
       }
 
-      const snap = await getDoc(ref);
-      const count = (snap.exists() && (snap.data() as { count?: number }).count) || 0;
+      const { count } = await res.json() as { count: number };
       el.textContent = count.toLocaleString();
     } catch (err) {
       el.textContent = '—';

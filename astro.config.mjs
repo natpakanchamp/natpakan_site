@@ -1,9 +1,9 @@
 import { defineConfig } from 'astro/config';
-import netlify from '@astrojs/netlify';
+import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
-  site: 'https://natpakan-site.netlify.app',
+  site: 'https://natpakan-site.pages.dev',
   output: 'static',
-  adapter: netlify(),
+  adapter: cloudflare(),
   trailingSlash: 'always',
 });
