@@ -469,20 +469,36 @@ ul, ol {
 }
 
 .post-list > li {
+  display: flex;
+  align-items: stretch;
+  gap: 1rem;
   padding: 0.75rem 0;
   border-bottom: 1px solid var(--color-border);
+}
+
+.post-list > li .squircle {
+  width: auto;
+  height: auto;
+  aspect-ratio: 1;
+  flex-shrink: 0;
+  align-self: stretch;
+}
+
+.post-list-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.post-list-text h3 {
+  margin: 0;
 }
 
 .post-meta {
   font-size: var(--text-sm);
   color: var(--color-text-muted);
-}
-
-.post-list-title {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0.25rem 0 0;
 }
 
 .post-link {

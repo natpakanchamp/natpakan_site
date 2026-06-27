@@ -1,10 +1,11 @@
 ---
 interface Props {
   title: string;
-  size?: number;
+  size?: number | string;
 }
 
-const { title, size = 44 } = Astro.props;
+const { title, size } = Astro.props;
+const svgSize = size ?? '100%';
 
 function hueFromTitle(s: string): number {
   let h = 5381;
@@ -23,8 +24,8 @@ const letter = title.trim()[0]?.toUpperCase() ?? '?';
 -->
 <svg
   class="squircle"
-  width={size}
-  height={size}
+  width={svgSize}
+  height={svgSize}
   viewBox="0 0 100 100"
   aria-hidden="true"
   focusable="false"

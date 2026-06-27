@@ -39,13 +39,15 @@ const blogPosts = posts
         <ul class="post-list">
           {blogPosts.map(post => (
             <li>
-              <span class="post-meta">{dateFormat.format(post.data.date)}</span>
-              <h3 class="post-list-title">
-                <Squircle title={post.data.title} size={40} />
-                <a class="post-link" href={postUrl(post.slug, post.data.categories ?? [])}>
-                  {post.data.title}
-                </a>
-              </h3>
+              <Squircle title={post.data.title} />
+              <div class="post-list-text">
+                <span class="post-meta">{dateFormat.format(post.data.date)}</span>
+                <h3>
+                  <a class="post-link" href={postUrl(post.slug, post.data.categories ?? [])}>
+                    {post.data.title}
+                  </a>
+                </h3>
+              </div>
             </li>
           ))}
         </ul>
