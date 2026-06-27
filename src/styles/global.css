@@ -477,11 +477,10 @@ ul, ol {
 }
 
 .post-list > li .squircle {
-  width: auto;
-  height: auto;
-  aspect-ratio: 1;
+  width: 56px;
+  height: 56px;
   flex-shrink: 0;
-  align-self: stretch;
+  align-self: center;
 }
 
 .post-list-text {
