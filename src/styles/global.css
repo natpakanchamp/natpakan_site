@@ -334,13 +334,19 @@ ul, ol {
   border: 0;
 }
 
-/* ── ขนาดทั้งหมดมาจากตัวแปรสามตัวนี้ ── */
+/* ── เปลี่ยน --tt-height ที่เดียว ทุกค่าคำนวณตาม ── */
 .theme-toggle-wrap {
-  --tt-height: 32px;           /* ← เปลี่ยนที่นี่ที่เดียว */
-  --tt-ball: calc(var(--tt-height) - 8px);   /* ball = height - edge*2 */
-  --tt-width: calc(var(--tt-height) * 2);    /* width = height * 2 */
-  --tt-edge: 4px;
-  --tt-travel: calc(var(--tt-width) - var(--tt-edge) * 2 - var(--tt-ball));
+  --tt-height: 32px;
+  --tt-icon:   calc(var(--tt-height) * 0.42);
+  --tt-ball:   calc(var(--tt-height) - 8px);
+  --tt-width:  calc(var(--tt-height) * 2);
+  /* padding: ball ต้องมีระยะห่างจากขอบ pill 4px เมื่อ centered บน icon */
+  --tt-pad:    calc((var(--tt-ball) - var(--tt-icon)) / 2 + 4px);
+  /* X ของ ball (light): centered บน sun icon */
+  --tt-x0:     calc(var(--tt-pad) + var(--tt-icon) / 2 - var(--tt-ball) / 2);
+  /* X ของ ball (dark): centered บน moon icon */
+  --tt-x1:     calc(var(--tt-width) - var(--tt-pad) - var(--tt-icon) / 2 - var(--tt-ball) / 2);
+  --tt-travel: calc(var(--tt-x1) - var(--tt-x0));
 
   margin-right: 20px;
 }
@@ -354,7 +360,7 @@ ul, ol {
   justify-content: space-between;
   width: var(--tt-width);
   height: var(--tt-height);
-  padding: 0 calc(var(--tt-edge) + 3px);
+  padding: 0 var(--tt-pad);
   background: #ddd8cc;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 999px;
@@ -365,12 +371,11 @@ ul, ol {
 
 .tt-icon {
   flex-shrink: 0;
-  z-index: 1;
+  z-index: 2;
   pointer-events: none;
   transition: color 0.25s ease;
-  /* icon ปรับขนาดตาม height อัตโนมัติ */
-  width: calc(var(--tt-height) * 0.42);
-  height: calc(var(--tt-height) * 0.42);
+  width: var(--tt-icon);
+  height: var(--tt-icon);
 }
 
 .tt-sun { color: #b8860b; }
@@ -379,7 +384,7 @@ ul, ol {
 .tt-ball {
   position: absolute;
   top: 50%;
-  left: var(--tt-edge);
+  left: var(--tt-x0);
   width: var(--tt-ball);
   height: var(--tt-ball);
   background: #fff;
