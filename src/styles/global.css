@@ -334,7 +334,16 @@ ul, ol {
   border: 0;
 }
 
-.theme-toggle-wrap { margin-right: 20px; }
+/* ── ขนาดทั้งหมดมาจากตัวแปรสามตัวนี้ ── */
+.theme-toggle-wrap {
+  --tt-height: 32px;           /* ← เปลี่ยนที่นี่ที่เดียว */
+  --tt-ball: calc(var(--tt-height) - 8px);   /* ball = height - edge*2 */
+  --tt-width: calc(var(--tt-height) * 2);    /* width = height * 2 */
+  --tt-edge: 4px;
+  --tt-travel: calc(var(--tt-width) - var(--tt-edge) * 2 - var(--tt-ball));
+
+  margin-right: 20px;
+}
 
 .theme-toggle-checkbox { display: none; }
 
@@ -343,9 +352,9 @@ ul, ol {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
-  width: 56px;
-  height: 28px;
-  padding: 0 7px;
+  width: var(--tt-width);
+  height: var(--tt-height);
+  padding: 0 calc(var(--tt-edge) + 3px);
   background: #ddd8cc;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 999px;
@@ -359,6 +368,9 @@ ul, ol {
   z-index: 1;
   pointer-events: none;
   transition: color 0.25s ease;
+  /* icon ปรับขนาดตาม height อัตโนมัติ */
+  width: calc(var(--tt-height) * 0.42);
+  height: calc(var(--tt-height) * 0.42);
 }
 
 .tt-sun { color: #b8860b; }
@@ -366,19 +378,18 @@ ul, ol {
 
 .tt-ball {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 20px;
-  height: 20px;
+  top: var(--tt-edge);
+  left: var(--tt-edge);
+  width: var(--tt-ball);
+  height: var(--tt-ball);
   background: #fff;
   border-radius: 50%;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Dark mode: ball slides right (56 - 3*2 - 20 = 30px) */
 .theme-toggle-checkbox:checked + .theme-toggle-label .tt-ball {
-  transform: translateX(30px);
+  transform: translateX(var(--tt-travel));
 }
 
 [data-theme="dark"] .theme-toggle-label {
