@@ -53,11 +53,19 @@ async function callGemini(apiKey: string, systemText: string, turns: unknown[]) 
   return parts.find((p) => p.text && !p.thought)?.text?.trim() || '';
 }
 
+const CREATOR_CONTEXT = `
+ข้อมูลเจ้าของเว็บไซต์:
+- ชื่อ: ณัฐปคัลภ์ กันทะศร (Natpakan Kanthason)
+- กำลังศึกษาอยู่ชั้นปีที่ 2 ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเชียงใหม่
+- มีความสนใจด้าน Software Development, Artificial Intelligence และ Hardware Engineering
+- เว็บไซต์นี้เป็น personal blog สำหรับบันทึกความรู้ กิจกรรม และโน้ตการเรียน
+`.trim();
+
 function systemPrompt({ title, isNotebook }: { title: string; isNotebook: boolean }) {
   if (isNotebook) {
-    return `คุณเป็นผู้ช่วยอธิบายเนื้อหาวิทยาศาสตร์และคณิตศาสตร์ภาษาไทย ตอบกระชับและชัดเจน ใช้ภาษาไทยเป็นหลัก อธิบายด้วยตัวอย่างง่ายๆ เมื่อเป็นไปได้ บทความปัจจุบันคือ "${title}"`;
+    return `คุณเป็นผู้ช่วยอธิบายเนื้อหาวิทยาศาสตร์และคณิตศาสตร์ภาษาไทย ตอบกระชับและชัดเจน ใช้ภาษาไทยเป็นหลัก อธิบายด้วยตัวอย่างง่ายๆ เมื่อเป็นไปได้ บทความปัจจุบันคือ "${title}"\n\n${CREATOR_CONTEXT}`;
   }
-  return `คุณเป็นผู้ช่วยสรุปและตอบคำถามเกี่ยวกับบล็อกโพสต์ภาษาไทย ตอบกระชับและชัดเจน บทความปัจจุบันคือ "${title}"`;
+  return `คุณเป็นผู้ช่วยสรุปและตอบคำถามเกี่ยวกับบล็อกโพสต์ภาษาไทย ตอบกระชับและชัดเจน บทความปัจจุบันคือ "${title}"\n\n${CREATOR_CONTEXT}`;
 }
 
 function buildTurns(mode: string, context: Record<string, string>, messages: { role: string; content: string }[]) {
