@@ -1,0 +1,53 @@
+---
+interface Props {
+  title: string;
+  size?: number;
+}
+
+const { title, size = 44 } = Astro.props;
+
+function hueFromTitle(s: string): number {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) & 0xffffffff;
+  return Math.abs(h) % 360;
+}
+
+const fill = `oklch(58% 0.19 ${hueFromTitle(title)})`;
+const letter = title.trim()[0]?.toUpperCase() ?? '?';
+---
+
+<!--
+  Squircle: SVG-based cover thumbnail.
+  Path approximates iOS superellipse (n≈5, continuous curvature).
+  Color is derived deterministically from the post title.
+-->
+<svg
+  class="squircle"
+  width={size}
+  height={size}
+  viewBox="0 0 100 100"
+  aria-hidden="true"
+  focusable="false"
+>
+  <path
+    d="M50,0 C78,0,82,2,90,10 C98,18,100,22,100,50 C100,78,98,82,90,90 C82,98,78,100,50,100 C22,100,18,98,10,90 C2,82,0,78,0,50 C0,22,2,18,10,10 C18,2,22,0,50,0 Z"
+    fill={fill}
+  />
+  <text
+    x="50"
+    y="51"
+    text-anchor="middle"
+    dominant-baseline="central"
+    fill="white"
+    font-size="46"
+    font-weight="700"
+    font-family="system-ui,-apple-system,sans-serif"
+  >{letter}</text>
+</svg>
+
+<style>
+  .squircle {
+    display: block;
+    flex-shrink: 0;
+  }
+</style>

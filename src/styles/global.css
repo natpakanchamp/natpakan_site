@@ -478,6 +478,13 @@ ul, ol {
   color: var(--color-text-muted);
 }
 
+.post-list-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.25rem 0 0;
+}
+
 .post-link {
   font-size: 1.25rem;
   font-weight: 600;

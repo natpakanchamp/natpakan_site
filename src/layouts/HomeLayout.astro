@@ -1,5 +1,6 @@
 ---
 import BaseLayout from './BaseLayout.astro';
+import Squircle from '@/components/Squircle.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -39,7 +40,8 @@ const blogPosts = posts
           {blogPosts.map(post => (
             <li>
               <span class="post-meta">{dateFormat.format(post.data.date)}</span>
-              <h3>
+              <h3 class="post-list-title">
+                <Squircle title={post.data.title} size={40} />
                 <a class="post-link" href={postUrl(post.slug, post.data.categories ?? [])}>
                   {post.data.title}
                 </a>
