@@ -496,11 +496,24 @@ ul, ol {
   border-bottom: 1px solid var(--color-border);
 }
 
-.post-list > li .squircle {
-  width: 56px;
-  height: 56px;
+.post-cover {
   flex-shrink: 0;
   align-self: center;
+  width: 56px;
+  height: 56px;
+}
+
+.post-list > li .squircle {
+  width: 100%;
+  height: 100%;
+}
+
+.squircle-cover {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 28%;
+  display: block;
 }
 
 .post-list-text {
