@@ -30,7 +30,7 @@ const blogPosts = posts
 
 function extractImages(body: string): string[] {
   const urls: string[] = [];
-  for (const m of body.matchAll(/!\[.*?\]\(([^)\s]+)\)/g)) urls.push(m[1]);
+  for (const m of body.matchAll(/!\[.*?]\(([^)\s]+)\)/g)) urls.push(m[1]);
   for (const m of body.matchAll(/<img[^>]+src=["']([^"']+)["']/gi)) urls.push(m[1]);
   return [...new Set(urls)];
 }
@@ -71,18 +71,45 @@ function extractImages(body: string): string[] {
     const imgs: string[] = JSON.parse(li.dataset.images || '[]');
     if (!imgs.length) return;
 
-    const picked = imgs[Math.floor(Math.random() * imgs.length)];
     const cover = li.querySelector<HTMLElement>('.post-cover');
-    const svg = cover?.querySelector('svg');
-    if (!cover || !svg) return;
+    const fallback = cover?.querySelector<HTMLElement>('.squircle');
+    if (!cover || !fallback) return;
 
-    const img = document.createElement('img');
-    img.src = picked;
-    img.alt = '';
-    img.setAttribute('aria-hidden', 'true');
-    img.className = 'squircle-cover';
-    img.onerror = () => img.replaceWith(svg); // fallback ถ้า load ไม่ได้
-    cover.replaceChild(img, svg);
+    // สร้าง img สองตัวสลับกัน (cross-fade)
+    const makeImg = () => {
+      const el = document.createElement('img');
+      el.alt = '';
+      el.setAttribute('aria-hidden', 'true');
+      el.className = 'squircle-cover squircle-shape';
+      return el;
+    };
+
+    let current = makeImg();
+    let next = makeImg();
+    next.classList.add('squircle-cover--next');
+    cover.replaceChild(current, fallback);
+    cover.appendChild(next);
+
+    let idx = Math.floor(Math.random() * imgs.length);
+    current.src = imgs[idx];
+    current.onerror = () => cover.replaceChildren(fallback);
+
+    const swap = () => {
+      idx = (idx + 1) % imgs.length;
+      next.src = imgs[idx];
+      next.onload = () => {
+        next.classList.add('squircle-cover--visible');
+        current.classList.remove('squircle-cover--visible');
+        [current, next] = [next, current];
+        current.classList.remove('squircle-cover--next');
+        next.classList.add('squircle-cover--next');
+      };
+    };
+
+    // delay แบบสุ่มทำให้แต่ละ post สลับในช่วงเวลาที่ต่างกัน
+    const interval = 2500 + Math.random() * 1500; // 2.5s – 4s
+    const offset   = Math.random() * interval;
+    setTimeout(() => { swap(); setInterval(swap, interval); }, offset);
   });
 </script>
 </BaseLayout>
