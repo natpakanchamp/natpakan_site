@@ -42,6 +42,7 @@
 }
 
 html {
+  background-color: var(--color-bg);
   transition: background-color var(--duration-normal) ease, color var(--duration-normal) ease;
 }
 
