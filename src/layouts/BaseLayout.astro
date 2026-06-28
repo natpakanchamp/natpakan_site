@@ -85,21 +85,15 @@ const { title, description = 'Natpakan K.', isNotesPage = false } = Astro.props;
           unfreezeTimer = setTimeout(function () { headroom.unfreeze(); }, delay);
         }
 
+        // Freeze only for the duration of a slider interaction (covers the
+        // mobile case where the slider sits inside the open burger menu). Every
+        // path schedules an unfreeze, so Headroom can never get stuck pinned.
         var slider = document.getElementById('font-size-slider');
         if (slider) {
           slider.addEventListener('input', function () { holdHeader(); releaseHeader(600); });
           slider.addEventListener('pointerdown', holdHeader);
           window.addEventListener('pointerup', function () { releaseHeader(600); });
-        }
-
-        // While the mobile burger menu is open, the slider lives inside it —
-        // keep the header frozen the whole time it's open.
-        var navTrigger = document.getElementById('nav-trigger');
-        if (navTrigger) {
-          navTrigger.addEventListener('change', function () {
-            if (navTrigger.checked) { holdHeader(); }
-            else { releaseHeader(0); }
-          });
+          window.addEventListener('touchend', function () { releaseHeader(600); });
         }
       })();
     </script>

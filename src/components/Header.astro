@@ -341,6 +341,17 @@ const navPages = [
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && !panel.hidden) close();
     });
+
+    // Close the panel when the header hides on scroll, so it doesn't linger
+    // open. Ignore the reflow-scroll fired right after a zoom change, and
+    // small jitters, so adjusting the slider never dismisses the panel.
+    let panelScrollY = window.scrollY;
+    window.addEventListener('scroll', () => {
+      if (panel.hidden) { panelScrollY = window.scrollY; return; }
+      if (Date.now() - lastFontChangeAt < 500) { panelScrollY = window.scrollY; return; }
+      if (Math.abs(window.scrollY - panelScrollY) < 24) return;
+      close();
+    }, { passive: true });
   })();
 
   // ── Close burger on scroll ────────────────────────────────────────────────
