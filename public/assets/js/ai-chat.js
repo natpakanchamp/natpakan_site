@@ -188,6 +188,40 @@
     }
   }
 
+  function renderMarkdown(raw) {
+    // Escape HTML to prevent XSS before any processing
+    var safe = raw
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    function inline(s) {
+      return s
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*\n]+?)\*/g, '<em>$1</em>')
+        .replace(/`([^`\n]+?)`/g, '<code>$1</code>');
+    }
+
+    var lines = safe.split('\n');
+    var out = '';
+    var inUl = false;
+
+    lines.forEach(function (line) {
+      var listMatch = line.match(/^[\*\-]\s+(.*)/);
+      if (listMatch) {
+        if (!inUl) { out += '<ul>'; inUl = true; }
+        out += '<li>' + inline(listMatch[1]) + '</li>';
+        return;
+      }
+      if (inUl) { out += '</ul>'; inUl = false; }
+      if (line.trim() === '') return;
+      out += '<p>' + inline(line) + '</p>';
+    });
+
+    if (inUl) out += '</ul>';
+    return out;
+  }
+
   function addMessage(role, content, cached) {
     state.messages.push({ role: role, content: content });
 
@@ -196,7 +230,11 @@
 
     var bubble = document.createElement('div');
     bubble.className = 'aic-bubble';
-    bubble.textContent = content;
+    if (role === 'user') {
+      bubble.textContent = content;
+    } else {
+      bubble.innerHTML = renderMarkdown(content);
+    }
     msg.appendChild(bubble);
 
     if (cached) {

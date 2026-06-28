@@ -160,8 +160,33 @@
   border-radius: 12px;
   font-size: 0.84rem;
   line-height: 1.65;
-  white-space: pre-wrap;
   word-break: break-word;
+}
+.aic-msg--user .aic-bubble {
+  white-space: pre-wrap;
+}
+.aic-msg--ai .aic-bubble p {
+  margin: 0 0 0.4em;
+}
+.aic-msg--ai .aic-bubble p:last-child {
+  margin-bottom: 0;
+}
+.aic-msg--ai .aic-bubble ul {
+  margin: 0.3em 0 0.4em;
+  padding-left: 1.2em;
+}
+.aic-msg--ai .aic-bubble li {
+  margin-bottom: 0.2em;
+}
+.aic-msg--ai .aic-bubble code {
+  font-size: 0.8em;
+  background: rgba(0, 0, 0, 0.08);
+  border: none;
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+[data-theme="dark"] .aic-msg--ai .aic-bubble code {
+  background: rgba(255, 255, 255, 0.1);
 }
 .aic-msg--user .aic-bubble {
   background: var(--color-link);
