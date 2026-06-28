@@ -5,6 +5,129 @@ page_css: /assets/css/deep-learning-notes.css
 page_js: /assets/js/deep-learning-vis.js
 categories:
     - notes
+graph:
+  nodes:
+    - id: supervised-learning
+      label: Supervised Learning
+      group: foundation
+    - id: linear-classifier
+      label: Linear Classifier
+      group: foundation
+    - id: selectivity-invariance
+      label: Selectivity–Invariance
+      group: foundation
+    - id: feature-extractor
+      label: Feature Extractor
+      group: foundation
+    - id: kernel-methods
+      label: Kernel Methods
+      group: foundation
+    - id: repr-learning
+      label: Representation Learning
+      group: foundation
+    - id: sgd
+      label: SGD
+      group: optimization
+    - id: backprop
+      label: Backpropagation
+      group: optimization
+    - id: pre-training
+      label: Pre-training
+      group: optimization
+    - id: relu
+      label: ReLU
+      group: architecture
+    - id: convnet
+      label: ConvNet
+      group: architecture
+    - id: pooling
+      label: Pooling
+      group: architecture
+    - id: rnn
+      label: RNN
+      group: architecture
+    - id: lstm
+      label: LSTM
+      group: architecture
+    - id: distributed-rep
+      label: Distributed Representations
+      group: representation
+    - id: word-vectors
+      label: Word Vectors
+      group: representation
+    - id: deep-learning
+      label: Deep Learning
+      group: core
+    - id: unsupervised
+      label: Unsupervised Learning
+      group: future
+    - id: reinforcement
+      label: Reinforcement Learning
+      group: future
+    - id: nlu
+      label: NLU
+      group: future
+  edges:
+    - source: supervised-learning
+      target: sgd
+      label: ฝึกด้วย
+    - source: sgd
+      target: backprop
+      label: คำนวณ gradient ด้วย
+    - source: linear-classifier
+      target: selectivity-invariance
+      label: มีปัญหา
+    - source: selectivity-invariance
+      target: feature-extractor
+      label: ต้องการ
+    - source: selectivity-invariance
+      target: kernel-methods
+      label: แก้ได้ไม่สมบูรณ์
+    - source: feature-extractor
+      target: repr-learning
+      label: วิวัฒนาการเป็น
+    - source: repr-learning
+      target: deep-learning
+      label: คือแก่นของ
+    - source: backprop
+      target: relu
+      label: ใช้ร่วมกัน
+    - source: backprop
+      target: pre-training
+      label: นำมาก่อน
+    - source: relu
+      target: convnet
+      label: activation ใน
+    - source: relu
+      target: rnn
+      label: ใช้ใน
+    - source: convnet
+      target: pooling
+      label: ประกอบด้วย
+    - source: deep-learning
+      target: convnet
+      label: สถาปัตยกรรม
+    - source: deep-learning
+      target: rnn
+      label: สถาปัตยกรรม
+    - source: rnn
+      target: lstm
+      label: พัฒนาเป็น
+    - source: rnn
+      target: distributed-rep
+      label: เรียนรู้
+    - source: distributed-rep
+      target: word-vectors
+      label: เช่น
+    - source: deep-learning
+      target: unsupervised
+      label: อนาคต
+    - source: convnet
+      target: reinforcement
+      label: ผสานกับ
+    - source: rnn
+      target: nlu
+      label: ใช้กับ
 ---
 
 > คำแปลไทยฉบับละเอียดของบทความรีวิวคลาสสิก *"Deep Learning"* โดย Yann LeCun, Yoshua Bengio และ Geoffrey Hinton ตีพิมพ์ในวารสาร *Nature* เล่ม 521 ปี 2015 จัดเรียงตามหัวข้อต้นฉบับ พร้อมคงศัพท์เทคนิคภาษาอังกฤษไว้ในวงเล็บเพื่อการอ้างอิง

@@ -2,6 +2,19 @@
 import BaseLayout from './BaseLayout.astro';
 import PostViews from '@/components/PostViews.astro';
 import AIChatBot from '@/components/AIChatBot.astro';
+import KnowledgeGraph from '@/components/KnowledgeGraph.astro';
+
+interface GraphNode {
+  id: string;
+  label: string;
+  group?: string;
+}
+
+interface GraphEdge {
+  source: string;
+  target: string;
+  label?: string;
+}
 
 interface Props {
   title: string;
@@ -11,9 +24,10 @@ interface Props {
   pageCss?: string;
   pageJs?: string;
   isNotesPage?: boolean;
+  graph?: { nodes: GraphNode[]; edges: GraphEdge[] };
 }
 
-const { title, date, author, slug, pageCss, pageJs, isNotesPage = false } = Astro.props;
+const { title, date, author, slug, pageCss, pageJs, isNotesPage = false, graph } = Astro.props;
 
 const dateFormat = new Intl.DateTimeFormat('en-US', {
   month: 'short',
@@ -54,6 +68,10 @@ const dateFormat = new Intl.DateTimeFormat('en-US', {
     <div class="post-content e-content" itemprop="articleBody">
       <slot />
     </div>
+
+    {graph && (
+      <KnowledgeGraph nodes={graph.nodes} edges={graph.edges} />
+    )}
 
     <a class="u-url" href={Astro.url.pathname} hidden></a>
   </article>
