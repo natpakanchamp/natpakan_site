@@ -63,11 +63,43 @@ const { title, description = 'Natpakan K.', isNotesPage = false } = Astro.props;
     <script is:inline>
       (function () {
         var header = document.querySelector('.site-header');
-        if (header && window.Headroom) {
-          new Headroom(header, {
-            offset: 80,
-            tolerance: { up: 5, down: 0 }
-          }).init();
+        if (!header || !window.Headroom) return;
+
+        var headroom = new Headroom(header, {
+          offset: 80,
+          tolerance: { up: 5, down: 0 }
+        });
+        headroom.init();
+
+        // Keep the header pinned & frozen while the font slider is in use:
+        // growing the text reflows the page and fires a downward-scroll event
+        // that Headroom would otherwise read as intent to hide the navbar.
+        var unfreezeTimer = null;
+        function holdHeader() {
+          if (unfreezeTimer) clearTimeout(unfreezeTimer);
+          headroom.pin();
+          headroom.freeze();
+        }
+        function releaseHeader(delay) {
+          if (unfreezeTimer) clearTimeout(unfreezeTimer);
+          unfreezeTimer = setTimeout(function () { headroom.unfreeze(); }, delay);
+        }
+
+        var slider = document.getElementById('font-size-slider');
+        if (slider) {
+          slider.addEventListener('input', function () { holdHeader(); releaseHeader(600); });
+          slider.addEventListener('pointerdown', holdHeader);
+          window.addEventListener('pointerup', function () { releaseHeader(600); });
+        }
+
+        // While the mobile burger menu is open, the slider lives inside it —
+        // keep the header frozen the whole time it's open.
+        var navTrigger = document.getElementById('nav-trigger');
+        if (navTrigger) {
+          navTrigger.addEventListener('change', function () {
+            if (navTrigger.checked) { holdHeader(); }
+            else { releaseHeader(0); }
+          });
         }
       })();
     </script>

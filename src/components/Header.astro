@@ -17,22 +17,69 @@ const navPages = [
       <input type="checkbox" id="nav-trigger" class="nav-trigger" />
 
       <div class="trigger">
-        <div class="theme-toggle-wrap">
-          <input type="checkbox" class="theme-toggle-checkbox" id="theme-chk" />
-          <label class="theme-toggle-label" for="theme-chk" aria-label="Toggle dark mode">
-            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="tt-icon tt-sun" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <circle cx="12" cy="12" r="4"></circle>
-              <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path>
+
+        <!-- Settings -->
+        <div class="settings-wrap">
+          <button
+            id="settings-btn"
+            class="settings-btn page-link"
+            aria-label="Settings"
+            aria-expanded="false"
+            aria-controls="settings-panel"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
-            <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="tt-icon tt-moon" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
-            </svg>
-            <div class="tt-ball">
-              <span class="sr-only">Toggle dark mode</span>
+          </button>
+
+          <div id="settings-panel" class="settings-panel" hidden>
+
+            <!-- Dark mode -->
+            <div class="settings-row">
+              <span class="settings-label">Dark mode</span>
+              <div class="theme-toggle-wrap">
+                <input type="checkbox" class="theme-toggle-checkbox" id="theme-chk" />
+                <label class="theme-toggle-label" for="theme-chk" aria-label="Toggle dark mode">
+                  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="tt-icon tt-sun" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7"></path>
+                  </svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="tt-icon tt-moon" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"></path>
+                  </svg>
+                  <div class="tt-ball">
+                    <span class="sr-only">Toggle dark mode</span>
+                  </div>
+                </label>
+              </div>
             </div>
-          </label>
+
+            <!-- Font size -->
+            <div class="settings-row">
+              <span class="settings-label">
+                ขนาดตัวอักษร
+                <span id="font-size-value" class="settings-value">100%</span>
+              </span>
+              <div class="font-slider-wrap">
+                <span class="font-slider-icon">A</span>
+                <input
+                  type="range"
+                  id="font-size-slider"
+                  class="font-slider"
+                  min="85"
+                  max="130"
+                  step="5"
+                  value="100"
+                  aria-label="Font size"
+                />
+                <span class="font-slider-icon font-slider-icon--lg">A</span>
+              </div>
+            </div>
+
+          </div>
         </div>
 
         {navPages.map(p => (
@@ -43,8 +90,183 @@ const navPages = [
   </div>
 </header>
 
+<style>
+  /* ── Settings button ─────────────────────────── */
+  .settings-wrap {
+    position: relative;
+  }
+
+  .settings-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 1;
+  }
+
+  .settings-btn[aria-expanded="true"] {
+    background-color: rgba(127, 127, 127, 0.12);
+    color: var(--color-text);
+  }
+
+  /* ── Settings panel ──────────────────────────── */
+  .settings-panel[hidden] {
+    display: none;
+  }
+
+  .settings-panel {
+    position: absolute;
+    top: calc(100% + 20px);
+    right: 0;
+    min-width: 220px;
+    padding: 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 16px;
+    background: rgba(244, 244, 246, 0.92);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    backdrop-filter: blur(12px) saturate(160%);
+    box-shadow:
+      0 4px 12px -2px rgba(31, 38, 135, 0.14),
+      0 1px 4px 0 rgba(31, 38, 135, 0.08);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  [data-theme="dark"] .settings-panel {
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(22, 22, 22, 0.92);
+    box-shadow:
+      0 4px 12px -2px rgba(0, 0, 0, 0.35),
+      0 1px 4px 0 rgba(0, 0, 0, 0.20);
+  }
+
+  .settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .settings-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .settings-value {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    min-width: 2.8em;
+  }
+
+  /* ── Font slider ──────────────────────────────── */
+  .font-slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .font-slider-icon {
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    line-height: 1;
+    user-select: none;
+  }
+
+  .font-slider-icon--lg {
+    font-size: 1rem;
+  }
+
+  .font-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 90px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-border);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .font-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--color-link);
+    cursor: pointer;
+    transition: transform var(--duration-fast) ease;
+  }
+
+  .font-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+  }
+
+  .font-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: var(--color-link);
+    cursor: pointer;
+  }
+
+  /* ── Divider between rows ────────────────────── */
+  .settings-row + .settings-row {
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* ── Mobile: panel inside burger menu ───────── */
+  @media (max-width: 600px) {
+    .settings-panel[hidden] {
+      display: flex;
+    }
+
+    .settings-panel {
+      position: static;
+      border: none;
+      border-radius: 0;
+      background: none;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: none;
+      padding: 0.4rem 1rem;
+      border-top: 1px solid var(--color-border);
+    }
+
+    .settings-wrap {
+      width: 100%;
+    }
+
+    .settings-btn {
+      display: none;
+    }
+
+    [data-theme="dark"] .settings-panel {
+      background: none;
+      box-shadow: none;
+      border-color: var(--color-border);
+    }
+  }
+</style>
+
 <script>
-  // Theme toggle (checkbox-based)
+  // Timestamp of the last font-slider change. Growing the text reflows the
+  // page and fires a scroll event that isn't a real user scroll; the burger
+  // auto-close watches this to ignore those reflow-induced scrolls.
+  let lastFontChangeAt = 0;
+
+  // ── Theme toggle ──────────────────────────────────────────────────────────
   (function () {
     const chk = document.getElementById('theme-chk') as HTMLInputElement | null;
     if (!chk) return;
@@ -62,12 +284,100 @@ const navPages = [
     });
   })();
 
-  // Close burger on scroll
+  // ── Font size slider ──────────────────────────────────────────────────────
+  (function () {
+    const slider = document.getElementById('font-size-slider') as HTMLInputElement | null;
+    const label  = document.getElementById('font-size-value') as HTMLElement | null;
+    if (!slider) return;
+
+    const STORAGE_KEY = 'postFontSize';
+    const saved = (() => { try { return localStorage.getItem(STORAGE_KEY); } catch { return null; } })();
+    const initial = saved ? Math.min(130, Math.max(85, Number(saved))) : 100;
+
+    function applySize(value: number) {
+      const post = document.querySelector<HTMLElement>('.post');
+      // Drive a scale variable rather than font-size: rem-based post CSS
+      // ignores an inherited font-size, but every prose rule multiplies by
+      // --reading-scale, so the whole article body scales together.
+      if (post) post.style.setProperty('--reading-scale', String(value / 100));
+      if (label) label.textContent = value + '%';
+      slider!.value = String(value);
+      try { localStorage.setItem(STORAGE_KEY, String(value)); } catch {}
+    }
+
+    applySize(initial);
+
+    slider.addEventListener('input', () => {
+      lastFontChangeAt = Date.now();
+      applySize(Number(slider.value));
+    });
+  })();
+
+  // ── Settings panel open/close ─────────────────────────────────────────────
+  (function () {
+    const btn   = document.getElementById('settings-btn') as HTMLButtonElement | null;
+    const panel = document.getElementById('settings-panel') as HTMLElement | null;
+    if (!btn || !panel) return;
+
+    function open() {
+      panel!.hidden = false;
+      btn!.setAttribute('aria-expanded', 'true');
+    }
+
+    function close() {
+      panel!.hidden = true;
+      btn!.setAttribute('aria-expanded', 'false');
+    }
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      panel.hidden ? open() : close();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!panel.hidden && !panel.contains(e.target as Node) && e.target !== btn) close();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.hidden) close();
+    });
+  })();
+
+  // ── Close burger on scroll ────────────────────────────────────────────────
   (function () {
     const navTrigger = document.getElementById('nav-trigger') as HTMLInputElement | null;
+    const nav = document.querySelector<HTMLElement>('.site-nav');
     if (!navTrigger) return;
+
+    // Dragging the font slider (which lives inside the burger menu on mobile)
+    // nudges the page enough to fire scroll; without these guards the menu
+    // collapses mid-drag and the slider becomes unusable. Suppress auto-close
+    // while a pointer is down inside the nav, and only close on a real scroll.
+    const SCROLL_CLOSE_THRESHOLD = 24;
+    let interactingWithNav = false;
+    let lastScrollY = window.scrollY;
+
+    if (nav) {
+      const start = () => { interactingWithNav = true; };
+      const end = () => {
+        // Defer so the trailing scroll event from the gesture is ignored too.
+        setTimeout(() => { interactingWithNav = false; lastScrollY = window.scrollY; }, 120);
+      };
+      nav.addEventListener('pointerdown', start, { passive: true });
+      nav.addEventListener('touchstart', start, { passive: true });
+      window.addEventListener('pointerup', end, { passive: true });
+      window.addEventListener('touchend', end, { passive: true });
+    }
+
+    const REFLOW_GRACE_MS = 500;
+
     window.addEventListener('scroll', () => {
-      if (navTrigger.checked) navTrigger.checked = false;
+      if (!navTrigger.checked) { lastScrollY = window.scrollY; return; }
+      if (interactingWithNav) { lastScrollY = window.scrollY; return; }
+      // Ignore the scroll caused by the text reflowing right after a zoom change.
+      if (Date.now() - lastFontChangeAt < REFLOW_GRACE_MS) { lastScrollY = window.scrollY; return; }
+      if (Math.abs(window.scrollY - lastScrollY) < SCROLL_CLOSE_THRESHOLD) return;
+      navTrigger.checked = false;
     }, { passive: true });
   })();
 </script>
