@@ -23,12 +23,7 @@ categories:
 
 เช้าวันที่ 20 ธันวาคม 2568 ราว 07:00 พวกเราจองรถตู้ออกเดินทางไปสำรวจโรงเรียน ถึงจุดเปลี่ยนรถด้านล่างราว 10:00 วันนั้นอากาศค่อนข้างอบอุ่น เราได้เจอกับ "ครูเล็ก" เป็นครั้งแรก ครูเป็นคนพาเราขึ้นไปสำรวจโรงเรียน นั่งท้ายกระบะกันไป 10 คน ตลอดทางยังเป็นถนนดินแดงเต็มไปด้วยฝุ่น แต่เริ่มเห็นร่องรอยว่ากำลังจะปูถนนกันแล้ว
 
-  <video 
-    style="display: block; margin: 2rem auto; width: 80%; height: auto;" 
-    autoplay
-    loop
-    muted
-    >
+  <video style="display: block; margin: 2rem auto; width: 80%; height: auto;" autoplay loop muted playsinline>
     <source src="/assets/Omlong/omlong_video_1.mp4" type="video/mp4">
   </video>
 
@@ -44,12 +39,7 @@ categories:
 
 ## ออกเดินทางสู่ฮอด
 
-<video
-    style="display: block; margin: 2rem auto; width: 80%; height: auto;"
-    autoplay
-    loop
-    muted
-    >
+<video style="display: block; margin: 2rem auto; width: 80%; height: auto;" autoplay loop muted playsinline>
     <source src="/assets/Omlong/omlong_video_2.mp4" type="video/mp4">
 </video>
 

@@ -28,26 +28,14 @@ categories:
 
  จากนั้นจะเข้าสู่กิจกรรม Prompt Playground : AI Assistant โดยสอน prompt AI ยังไงให้ได้ประสิทธิภาพที่สุด และข้อควรระวังเกี่ยวกับปัญหา AI Hollucination
 
-<video 
-  style="display: block; margin: 0 auto; width: 100%; height: auto;" 
-  autoplay
-  loop
-  muted
-  playsinline
-  >
+<video style="display: block; margin: 0 auto; width: 100%; height: auto;" autoplay loop muted playsinline>
   <source src="/assets/AI.mp4" type="video/mp4">
 Your browser does not support the video tag.
 </video>
 
 <br>
 และตอนเย็นของในวันนี้จะมีกิจกรรม Team building เอาตรงๆก็คือกิจกรรมยืดเส้นยืดสายนั่นแหละครับ จะได้ทำความรู้จักกับเพื่อนๆในค่าย โดยกิจกรรมแต่ละฐานก็จะเน้นการทำงานเป็นทีม เช่น การวิ่งกระสอบ การล้อมรอบเป็นวงกลม หรือตักน้ำใส่ท่อที่เจาะรู แล้วเพื่อนๆในทีมต้องช่วยกันเอามืออุดไม่ให้น้ำไหลออก
-<video 
-  style="display: block; margin: 0 auto; width: 100%; height: auto;" 
-  autoplay
-  loop
-  muted
-  playsinline
-  >
+<video style="display: block; margin: 0 auto; width: 100%; height: auto;" autoplay loop muted playsinline>
   <source src="/assets/team-building.mp4" type="video/mp4">
 Your browser does not support the video tag.
 </video>
@@ -84,13 +72,7 @@ Your browser does not support the video tag.
 <b>วันที่สี่ (27/10/2568) กิจกรรม Personal Development</b>
 
 ก่อนเริ่มกิจกรรมที่จะจัดขึ้นในวันนี้ ตอนเช้าผมแวะมาปั่นจักรยาน ซึ่งทางสถาบันมีกิจกรรมออกกำลังกายให้สำหรับคนที่ต้องการออกกำลังกายตอนเช้าครับ
-<video 
-  style="display: block; margin: 0 auto; width: 100%; height: auto;" 
-  autoplay
-  loop
-  muted
-  playsinline
-  >
+<video style="display: block; margin: 0 auto; width: 100%; height: auto;" autoplay loop muted playsinline>
   <source src="/assets/cp-27-10-2025.mp4" type="video/mp4">
 Your browser does not support the video tag.
 </video>
