@@ -230,11 +230,21 @@ const groups = [...new Set(nodes.map(n => n.group).filter(Boolean))];
       ctx.fillStyle = textColor();
       ctx.fillText(node.label, node.x + r + 3, node.y);
     })
-    .nodePointerAreaPaint((node: any, color: string, ctx: CanvasRenderingContext2D) => {
+    .nodePointerAreaPaint((node: any, color: string, ctx: CanvasRenderingContext2D, globalScale: number) => {
+      // Hit area must cover the circle AND the label text to the right,
+      // otherwise clicking the text (the most natural target) misses.
+      const r = 5;
+      const fontSize = Math.max(10, 12 / globalScale);
+      ctx.font = `${fontSize}px -apple-system, sans-serif`;
+      const textW = ctx.measureText(node.label).width;
+      const h = fontSize + 6;
       ctx.beginPath();
-      ctx.arc(node.x, node.y, 8, 0, 2 * Math.PI);
+      ctx.rect(node.x - r - 2, node.y - h / 2, r * 2 + 4 + textW + 4, h);
       ctx.fillStyle = color;
       ctx.fill();
+    })
+    .onNodeHover((node: any) => {
+      el.style.cursor = node ? 'pointer' : 'grab';
     })
     .d3AlphaDecay(0.02)
     .d3VelocityDecay(0.4);

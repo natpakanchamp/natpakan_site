@@ -681,7 +681,7 @@
 
     function draw() {
       const s    = STEPS[curStep];
-      const L    = layout();
+      const lay  = layout();
       const dark = isDark();
       const R    = Math.max(18, Math.min(H * 0.11, 30)); // node radius
 
@@ -696,7 +696,7 @@
 
       // Draw edges
       edges.forEach(({ from, to, w }) => {
-        const fn = L[from], tn = L[to];
+        const fn = lay[from], tn = lay[to];
 
         const isFwd = s.dir === 'fwd' && s.hi.includes(to);
         const isBwd = (s.dir === 'bwd' || s.dir === 'upd') &&
@@ -727,7 +727,7 @@
       // Arrow direction overlay (small arrowhead near destination)
       if (s.dir === 'fwd' || s.dir === 'bwd') {
         edges.forEach(({ from, to }) => {
-          const fn = L[from], tn = L[to];
+          const fn = lay[from], tn = lay[to];
           const active = s.dir === 'fwd' ? s.hi.includes(to)
                                          : (s.hi.includes(from) || s.hi.includes(to));
           if (!active) return;
@@ -757,7 +757,7 @@
       }
 
       // Draw nodes
-      Object.entries(L).forEach(([key, node]) => {
+      Object.entries(lay).forEach(([key, node]) => {
         const hi  = s.hi.includes(key) || (s.hi.includes('edges') && key !== 'loss');
         const nc  = nodeColors(node.type);
 
@@ -790,10 +790,10 @@
       ctx.textAlign    = 'center';
       ctx.textBaseline = 'top';
       ctx.fillStyle    = dark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)';
-      ctx.fillText('Input',          L.x1.x,   8);
-      ctx.fillText('Hidden (ReLU)', L.h1.x,   8);
-      ctx.fillText('Output (σ)',     L.out.x,  8);
-      ctx.fillText('Loss',           L.loss.x, 8);
+      ctx.fillText('Input',          lay.x1.x,   8);
+      ctx.fillText('Hidden (ReLU)', lay.h1.x,   8);
+      ctx.fillText('Output (σ)',     lay.out.x,  8);
+      ctx.fillText('Loss',           lay.loss.x, 8);
 
       // Phase badge
       const phaseMap = { init:'—', fwd:'→ Forward', loss:'▼ Loss', bwd:'← Backward', upd:'✓ Update' };
