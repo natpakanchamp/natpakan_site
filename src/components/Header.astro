@@ -136,7 +136,7 @@ const navPages = [
     gap: 0.75rem;
   }
 
-  [data-theme="dark"] .settings-panel {
+  :global([data-theme="dark"]) .settings-panel {
     border-color: rgba(255, 255, 255, 0.12);
     background: rgba(22, 22, 22, 0.92);
     box-shadow:
@@ -252,7 +252,7 @@ const navPages = [
       display: none;
     }
 
-    [data-theme="dark"] .settings-panel {
+    :global([data-theme="dark"]) .settings-panel {
       background: none;
       box-shadow: none;
       border-color: var(--color-border);

@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "strip-hdr": "node scripts/strip-hdr.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.13",
@@ -13,5 +14,8 @@
     "firebase": "^11.9.0",
     "force-graph": "^1.51.4",
     "sass": "^1.89.1"
+  },
+  "devDependencies": {
+    "sharp": "^0.35.3"
   }
 }

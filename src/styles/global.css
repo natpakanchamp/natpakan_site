@@ -79,6 +79,10 @@ a:hover { text-decoration: underline; }
 img, video {
   max-width: 100%;
   height: auto;
+  /* Caps HDR gain-map photos (e.g. iPhone HDR) to SDR brightness so they don't
+     blow out relative to the rest of the page. WebKit-only for now; harmless
+     no-op elsewhere. */
+  dynamic-range-limit: standard;
 }
 
 blockquote {
