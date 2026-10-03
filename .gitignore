@@ -3,6 +3,7 @@ dist/
 node_modules/
 .astro/
 .idea/
+.claude/
 .DS_Store
 .env
 .env.*
