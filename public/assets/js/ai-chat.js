@@ -10,34 +10,16 @@
     return parts[parts.length - 1] || 'home';
   }
 
-  function stripHtml(html) {
-    var tmp = document.createElement('div');
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || '';
-  }
-
   function truncate(text, max) {
     if (text.length <= max) return text;
     var cut = text.lastIndexOf(' ', max);
     return text.slice(0, cut > 0 ? cut : max) + '…';
   }
 
+  // The server looks up the article by slug; only post pages get the AI actions.
   function extractPostContext() {
-    var content = document.querySelector('.post-content');
-    if (!content) return null;
-
-    var articleText = truncate(
-      content.innerText.replace(/\s+/g, ' ').trim(),
-      4000
-    );
-
-    return {
-      title: (document.querySelector('.post-title') || {}).textContent?.trim() || document.title,
-      slug: slugFromPath(),
-      url: window.location.pathname,
-      isNotebook: document.body.classList.contains('notes-page'),
-      articleText: articleText,
-    };
+    if (!document.querySelector('.post-content')) return null;
+    return { slug: slugFromPath() };
   }
 
   // ── Section context for selection ──────────────────────────────────────────
@@ -65,24 +47,12 @@
   // ── Payload builder ────────────────────────────────────────────────────────
 
   function buildPayload(mode, ctx, messages, selection) {
-    var postCtx = ctx || {};
-
-    var context = {
-      articleText: postCtx.articleText || '',
-      selectedText: (selection && selection.text) || '',
-      sectionHeading: (selection && selection.heading) || '',
-      surroundingText: (selection && selection.surrounding) || '',
-    };
-
     return {
       mode: mode,
-      post: {
-        title: postCtx.title || document.title,
-        slug: postCtx.slug || slugFromPath(),
-        url: postCtx.url || window.location.pathname,
-        isNotebook: !!postCtx.isNotebook,
-      },
-      context: context,
+      slug: (ctx && ctx.slug) || slugFromPath(),
+      selection: selection
+        ? { text: selection.text, heading: selection.heading, surrounding: selection.surrounding }
+        : undefined,
       messages: messages || [],
     };
   }

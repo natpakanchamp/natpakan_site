@@ -1,38 +1,35 @@
 import type { APIRoute } from 'astro';
+import { fsGet, fsSet } from '@/lib/firestore';
+import { clientIp, hashIp, isRateLimited, isSameOrigin } from '@/lib/rate-limit';
+import { findPostByTitleSlug, isNotesPost, plainText } from '@/lib/posts';
 
 export const prerender = false;
 
-const FIREBASE_PROJECT = 'natpakan-site';
 const GEMINI_MODEL = 'gemini-2.5-flash';
 const CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
-const CORS = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
+const RATE_LIMIT = { collection: 'chatRateLimits', max: 15, windowMs: 10 * 60_000 };
+
+const MAX_ARTICLE_LENGTH = 4000;
+const MAX_CHAT_CONTEXT_LENGTH = 2000;
+const MAX_MSG_LENGTH = 800;
+const MAX_HISTORY = 20;
+const MAX_SELECTION_LENGTH = 1000;
+const MAX_SURROUNDING_LENGTH = 700;
+const MAX_HEADING_LENGTH = 200;
+
+const SLUG_PATTERN = /^[a-z0-9-]+$/;
+const MODES = ['summary', 'explain', 'chat'] as const;
+type Mode = typeof MODES[number];
+
+interface ChatMessage { role: string; content: string }
+interface Selection { text: string; heading: string; surrounding: string }
+interface Article { title: string; text: string; isNotebook: boolean }
 
 function json(statusCode: number, body: unknown): Response {
   return new Response(JSON.stringify(body), {
     status: statusCode,
-    headers: { ...CORS, 'Content-Type': 'application/json' },
-  });
-}
-
-const BASE = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents`;
-
-async function fsGet(collection: string, docId: string) {
-  const res = await fetch(`${BASE}/${collection}/${docId}`);
-  if (!res.ok) return null;
-  const data = await res.json() as { fields?: Record<string, unknown> };
-  return data.fields || null;
-}
-
-async function fsSet(collection: string, docId: string, fields: Record<string, unknown>) {
-  await fetch(`${BASE}/${collection}/${docId}`, {
-    method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fields }),
   });
 }
 
@@ -61,7 +58,7 @@ const CREATOR_CONTEXT = `ข้อมูลเจ้าของเว็บไ�
 
 const CREATOR_KEYWORDS = ['ผู้สร้าง', 'เจ้าของ', 'ณัฐปคัลภ์', 'natpakan', 'นักศึกษา', 'วิศวกรรม', 'ใคร', 'คุณคือใคร', 'ทำเว็บ', 'เว็บนี้ของใคร'];
 
-function isCreatorQuery(messages: { role: string; content: string }[]): boolean {
+function isCreatorQuery(messages: ChatMessage[]): boolean {
   const last = messages[messages.length - 1]?.content?.toLowerCase() || '';
   return CREATOR_KEYWORDS.some((k) => last.includes(k.toLowerCase()));
 }
@@ -77,70 +74,99 @@ const GUARDRAILS = `
 - ห้ามสร้างเนื้อหาที่ไม่เหมาะสม รุนแรง หรือผิดกฎหมาย
 - ตอบเป็นภาษาไทยเป็นหลัก`;
 
-function systemPrompt({ title, isNotebook }: { title: string; isNotebook: boolean }) {
+function systemPrompt({ title, isNotebook }: Article) {
   if (isNotebook) {
     return `คุณเป็นผู้ช่วยอธิบายเนื้อหาวิทยาศาสตร์และคณิตศาสตร์ภาษาไทย ตอบกระชับและชัดเจน ใช้ภาษาไทยเป็นหลัก อธิบายด้วยตัวอย่างง่ายๆ เมื่อเป็นไปได้ บทความปัจจุบันคือ "${title}"${GUARDRAILS}`;
   }
   return `คุณเป็นผู้ช่วยสรุปและตอบคำถามเกี่ยวกับบล็อกโพสต์ภาษาไทย ตอบกระชับและชัดเจน บทความปัจจุบันคือ "${title}"${GUARDRAILS}`;
 }
 
-function buildTurns(mode: string, context: Record<string, string>, messages: { role: string; content: string }[]) {
+function buildTurns(mode: Mode, article: Article, selection: Selection, messages: ChatMessage[]) {
   if (mode === 'summary') {
-    return [{ role: 'user', parts: [{ text: `สรุปเนื้อหาบทความนี้ให้กระชับและเข้าใจง่าย:\n\n${context.articleText}` }] }];
+    return [{ role: 'user', parts: [{ text: `สรุปเนื้อหาบทความนี้ให้กระชับและเข้าใจง่าย:\n\n${article.text}` }] }];
   }
   if (mode === 'explain') {
-    const heading = context.sectionHeading ? `ในส่วน "${context.sectionHeading}"\n\n` : '';
-    const surrounding = context.surroundingText ? `บริบทโดยรอบ:\n${context.surroundingText}\n\n` : '';
-    return [{ role: 'user', parts: [{ text: `${heading}${surrounding}ช่วยอธิบายส่วนนี้ให้ละเอียดขึ้น:\n"${context.selectedText}"` }] }];
+    const heading = selection.heading ? `ในส่วน "${selection.heading}"\n\n` : '';
+    const surrounding = selection.surrounding ? `บริบทโดยรอบ:\n${selection.surrounding}\n\n` : '';
+    return [{ role: 'user', parts: [{ text: `${heading}${surrounding}ช่วยอธิบายส่วนนี้ให้ละเอียดขึ้น:\n"${selection.text}"` }] }];
   }
   // chat mode: inject creator context only when the question is about the creator
   const creatorNote = isCreatorQuery(messages) ? `\n\n${CREATOR_CONTEXT}` : '';
-  const ctxMsg = { role: 'user', parts: [{ text: `บริบทบทความ:\n${context.articleText.slice(0, 2000)}${creatorNote}` }] };
+  const ctxMsg = { role: 'user', parts: [{ text: `บริบทบทความ:\n${article.text.slice(0, MAX_CHAT_CONTEXT_LENGTH)}${creatorNote}` }] };
   const ctxAck = { role: 'model', parts: [{ text: 'รับทราบ ฉันพร้อมตอบคำถามเกี่ยวกับบทความนี้แล้ว' }] };
-  const history = (messages || []).map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] }));
+  const history = messages.map((m) => ({ role: m.role === 'user' ? 'user' : 'model', parts: [{ text: m.content }] }));
   return [ctxMsg, ctxAck, ...history];
 }
 
-export const OPTIONS: APIRoute = () => new Response(null, { status: 204, headers: CORS });
+function str(value: unknown, maxLength: number): string {
+  return typeof value === 'string' ? value.trim().slice(0, maxLength) : '';
+}
 
-const MAX_MSG_LENGTH = 800;
-const MAX_HISTORY = 20;
-
-function sanitizeMessages(messages: { role: string; content: string }[]): { role: string; content: string }[] {
+function sanitizeMessages(messages: unknown): ChatMessage[] {
+  if (!Array.isArray(messages)) return [];
   return messages.slice(-MAX_HISTORY).map((m) => ({
-    role: m.role === 'user' ? 'user' : 'assistant',
-    content: typeof m.content === 'string' ? m.content.slice(0, MAX_MSG_LENGTH) : '',
+    role: m?.role === 'user' ? 'user' : 'assistant',
+    content: str(m?.content, MAX_MSG_LENGTH),
   }));
 }
 
+function sanitizeSelection(selection: unknown): Selection {
+  const s = (selection ?? {}) as Record<string, unknown>;
+  return {
+    text: str(s.text, MAX_SELECTION_LENGTH),
+    heading: str(s.heading, MAX_HEADING_LENGTH),
+    surrounding: str(s.surrounding, MAX_SURROUNDING_LENGTH),
+  };
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
+  if (!isSameOrigin(request)) return json(403, { error: 'Forbidden' });
+
+  let payload: { mode?: unknown; slug?: unknown; selection?: unknown; messages?: unknown };
+  try { payload = await request.json(); } catch { return json(400, { error: 'Invalid JSON' }); }
+
+  const { mode, slug } = payload;
+  if (typeof mode !== 'string' || !MODES.includes(mode as Mode)) return json(400, { error: 'Invalid mode' });
+  if (typeof slug !== 'string' || !SLUG_PATTERN.test(slug)) return json(400, { error: 'Invalid slug' });
+
+  const selection = sanitizeSelection(payload.selection);
+  const messages = sanitizeMessages(payload.messages);
+  if (mode === 'explain' && !selection.text) return json(400, { error: 'Missing selection' });
+  if (mode === 'chat' && !messages.some((m) => m.role === 'user' && m.content)) return json(400, { error: 'Missing message' });
+
+  // Title and article text come from our own content, never from the client.
+  const post = await findPostByTitleSlug(slug);
+  if (!post) return json(404, { error: 'Post not found' });
+  const article: Article = {
+    title: post.data.title,
+    text: plainText(post.body ?? '', MAX_ARTICLE_LENGTH),
+    isNotebook: isNotesPost(post),
+  };
+
   const apiKey = (locals.runtime as { env: { GEMINI_API_KEY?: string } })?.env?.GEMINI_API_KEY;
   if (!apiKey) return json(500, { error: 'GEMINI_API_KEY not configured' });
 
-  let payload: { mode?: string; post?: { slug?: string; title: string; isNotebook: boolean }; context?: Record<string, string>; messages?: { role: string; content: string }[] };
-  try { payload = await request.json(); } catch { return json(400, { error: 'Invalid JSON' }); }
-
-  const { mode, post, context: ctx } = payload;
-  const messages = sanitizeMessages(payload.messages || []);
-  if (!mode || !post || !ctx) return json(400, { error: 'Missing required fields: mode, post, context' });
-  if (!['summary', 'explain', 'chat'].includes(mode)) return json(400, { error: 'Invalid mode' });
-
   try {
-    if (mode === 'summary' && post.slug) {
-      const cached = await fsGet('aiSummaries', post.slug) as Record<string, { stringValue?: string; integerValue?: string }> | null;
+    if (mode === 'summary') {
+      const cached = await fsGet('aiSummaries', slug) as Record<string, { stringValue?: string; integerValue?: string }> | null;
       if (cached) {
         const ts = Number(cached.generatedAt?.integerValue || 0);
         if (Date.now() - ts < CACHE_TTL_MS) return json(200, { reply: cached.summary?.stringValue, cached: true });
       }
     }
 
-    const reply = await callGemini(apiKey, systemPrompt(post), buildTurns(mode, ctx, messages || []));
+    const ipHash = await hashIp(clientIp(request));
+    if (await isRateLimited(ipHash, RATE_LIMIT)) {
+      return json(429, { error: 'ถามบ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่' });
+    }
 
-    if (mode === 'summary' && post.slug && reply) {
-      await fsSet('aiSummaries', post.slug, {
+    const reply = await callGemini(apiKey, systemPrompt(article), buildTurns(mode as Mode, article, selection, messages));
+
+    if (mode === 'summary' && reply) {
+      await fsSet('aiSummaries', slug, {
         summary: { stringValue: reply },
         generatedAt: { integerValue: String(Date.now()) },
-        title: { stringValue: post.title },
+        title: { stringValue: article.title },
       });
     }
 

@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import PostLayout from '@/layouts/PostLayout.astro';
+import { titleSlugOf, isNotesPost } from '@/lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -12,10 +13,9 @@ export async function getStaticPaths() {
       ? [dateMatch[1], dateMatch[2], dateMatch[3]]
       : ['0000', '00', '00'];
 
-    const titleSlug = post.slug.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+    const titleSlug = titleSlugOf(post);
 
-    const categories = post.data.categories ?? [];
-    const catSegment = categories.includes('notes') ? 'notes' : 'activities';
+    const catSegment = isNotesPost(post) ? 'notes' : 'activities';
 
     const postPath = `${catSegment}/${year}/${month}/${day}/${titleSlug}`;
 
@@ -29,8 +29,8 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await post.render();
 
-const isNotesPage = post.data.categories?.includes('notes') ?? false;
-const titleSlug = post.slug.replace(/^\d{4}-\d{2}-\d{2}-/, '');
+const isNotesPage = isNotesPost(post);
+const titleSlug = titleSlugOf(post);
 ---
 
 <PostLayout
