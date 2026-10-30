@@ -21,6 +21,11 @@
   --duration-fast: 150ms;
   --duration-normal: 250ms;
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Glass surface shared by the navbar, its dropdowns and the settings panel */
+  --glass-bg: rgba(255, 255, 255, 0.40);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-filter: blur(12px) saturate(160%);
 }
 
 [data-theme="dark"] {
@@ -32,6 +37,9 @@
   --color-border: #383838;
   --color-surface: #262626;
   --color-code-bg: #262626;
+
+  --glass-bg: rgba(20, 20, 20, 0.38);
+  --glass-border: rgba(255, 255, 255, 0.12);
 }
 
 /* ============================================================
@@ -175,11 +183,9 @@ ul, ol {
   width: calc(100% - 2rem);
   max-width: var(--content-width);
 
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid var(--glass-border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.40);
-  -webkit-backdrop-filter: blur(12px) saturate(160%);
-  backdrop-filter: blur(12px) saturate(160%);
+  background: var(--glass-bg);
   /* key shadow (directional) + ambient shadow (omnidirectional fill) */
   box-shadow:
     0 4px 12px -2px rgba(31, 38, 135, 0.14),
@@ -187,6 +193,19 @@ ul, ol {
 
   transition: transform 0.3s ease, box-shadow 0.2s ease, background-color 0.2s ease;
   will-change: transform;
+}
+
+/* The blur lives on a pseudo-element: backdrop-filter on .site-header itself
+   would make it a backdrop root, so the dropdowns inside it could only blur
+   the header, not the page behind them. */
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
 }
 
 .site-header .wrapper {
@@ -211,8 +230,6 @@ ul, ol {
 }
 
 [data-theme="dark"] .site-header {
-  border-color: rgba(255, 255, 255, 0.12);
-  background: rgba(20, 20, 20, 0.38);
   box-shadow:
     0 4px 12px -2px rgba(0, 0, 0, 0.35),
     0 1px 4px 0     rgba(0, 0, 0, 0.20);
@@ -304,19 +321,17 @@ ul, ol {
     top: calc(100% + 24px);
     right: 0;
     padding: 8px 6px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--glass-border);
     border-radius: 16px;
-    background: rgba(244, 244, 246, 0.92);
-    -webkit-backdrop-filter: blur(12px) saturate(160%);
-    backdrop-filter: blur(12px) saturate(160%);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
     box-shadow:
       0 4px 12px -2px rgba(31, 38, 135, 0.14),
       0 1px 4px 0     rgba(31, 38, 135, 0.08);
   }
 
   [data-theme="dark"] .nav-trigger:checked ~ .trigger {
-    border-color: rgba(255, 255, 255, 0.12);
-    background: rgba(22, 22, 22, 0.92);
     box-shadow:
       0 4px 12px -2px rgba(0, 0, 0, 0.35),
       0 1px 4px 0     rgba(0, 0, 0, 0.20);
@@ -359,7 +374,7 @@ ul, ol {
 
 .theme-toggle-checkbox { display: none; }
 
-.theme-toggle-label {
+.theme-toggle-label { /* Light mode */
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -367,7 +382,7 @@ ul, ol {
   width: var(--tt-width);
   height: var(--tt-height);
   padding: 0 var(--tt-pad);
-  background: #ddd8cc;
+  background: #FAF9F6;
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 999px;
   cursor: pointer;
@@ -404,8 +419,8 @@ ul, ol {
   transform: translate(var(--tt-travel), -50%);
 }
 
-[data-theme="dark"] .theme-toggle-label {
-  background: #1c2030;
+[data-theme="dark"] .theme-toggle-label { /* Dark mode*/
+  background: #28282B;
   border-color: rgba(255, 255, 255, 0.14);
 }
 [data-theme="dark"] .tt-sun { color: #ffd966; }
