@@ -31,7 +31,7 @@ const { title, description = 'Natpakan K.', isNotesPage = false } = Astro.props;
           }
           document.documentElement.setAttribute('data-theme', stored);
           // set bg inline ก่อน CSS โหลด เพื่อไม่ให้ safe area แสดงสีดำ
-          document.documentElement.style.backgroundColor = stored === 'dark' ? '#1b1b1b' : '#fdfdfd';
+          document.documentElement.style.backgroundColor = stored === 'dark' ? '#000000' : '#fdfdfd';
         } catch (e) {}
       })();
     </script>

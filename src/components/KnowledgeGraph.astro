@@ -46,6 +46,8 @@ const groups = [...new Set(nodes.map(n => n.group).filter(Boolean))];
 
   <div
     id="knowledge-graph"
+    class="skeleton"
+    aria-busy="true"
     data-nodes={JSON.stringify(nodes)}
     data-edges={JSON.stringify(edges)}
   ></div>
@@ -102,6 +104,12 @@ const groups = [...new Set(nodes.map(n => n.group).filter(Boolean))];
 
   #knowledge-graph:active {
     cursor: grabbing;
+  }
+
+  /* Fill the card edge-to-edge; the card itself clips the corners */
+  #knowledge-graph.skeleton {
+    border-radius: 0;
+    cursor: progress;
   }
 
   .kg-pill {
@@ -251,6 +259,12 @@ const groups = [...new Set(nodes.map(n => n.group).filter(Boolean))];
 
   Graph.d3Force('charge')?.strength(-180);
   Graph.d3Force('link')?.distance(80);
+
+  // drop the skeleton once the canvas has painted its first frame
+  requestAnimationFrame(() => {
+    el.classList.remove('skeleton');
+    el.removeAttribute('aria-busy');
+  });
 
   Graph.onNodeClick((node: any) => {
     const label = (node.label as string).toLowerCase();

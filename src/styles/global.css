@@ -26,10 +26,14 @@
   --glass-bg: rgba(255, 255, 255, 0.40);
   --glass-border: rgba(255, 255, 255, 0.55);
   --glass-filter: blur(12px) saturate(160%);
+
+  /* Skeleton placeholders — translucent so they read on both bg and surface */
+  --skeleton-bg: rgba(127, 127, 127, 0.16);
+  --skeleton-shine: rgba(255, 255, 255, 0.55);
 }
 
 [data-theme="dark"] {
-  --color-bg: #1b1b1b;
+  --color-bg: #000000;
   --color-text: #e6e6e6;
   --color-text-muted: #9a9a9a;
   --color-link: #6cb4ff;
@@ -38,8 +42,11 @@
   --color-surface: #262626;
   --color-code-bg: #262626;
 
-  --glass-bg: rgba(20, 20, 20, 0.38);
+  --glass-bg: rgba(27, 27, 27, 0.38);
   --glass-border: rgba(255, 255, 255, 0.12);
+
+  --skeleton-bg: rgba(127, 127, 127, 0.18);
+  --skeleton-shine: rgba(255, 255, 255, 0.08);
 }
 
 /* ============================================================
@@ -720,6 +727,45 @@ ul, ol {
 }
 .slider__dot:hover { transform: scale(1.2); }
 .slider__dot.is-active { background: #fff; }
+
+/* ============================================================
+   Skeleton loading
+   Add .skeleton while content loads, remove it when data arrives.
+   The shimmer moves via transform so it stays on the compositor.
+   ============================================================ */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--skeleton-bg);
+  color: transparent;
+  user-select: none;
+}
+
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, var(--skeleton-shine), transparent);
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+/* Inline text placeholder, e.g. a number that is still loading */
+.skeleton--text {
+  display: inline-block;
+  min-width: 4ch;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
+@keyframes skeleton-shimmer {
+  to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after { animation: none; }
+}
 
 /* ============================================================
    Notes / Sarabun pages
