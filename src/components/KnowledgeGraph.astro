@@ -46,6 +46,7 @@ const groups = [...new Set(nodes.map(n => n.group).filter(Boolean))];
 
   <div
     id="knowledge-graph"
+    data-lenis-prevent
     class="skeleton"
     aria-busy="true"
     data-nodes={JSON.stringify(nodes)}

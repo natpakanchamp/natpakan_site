@@ -98,6 +98,22 @@ const { title, description = 'Natpakan K.', isNotesPage = false } = Astro.props;
       })();
     </script>
 
+    <!-- Lenis: smooth, eased (inertial) page scrolling -->
+    <script>
+      import Lenis from 'lenis';
+      import 'lenis/dist/lenis.css';
+
+      const SCROLL_DURATION_S = 1.2;
+      const easeOutExpo = (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t));
+
+      new Lenis({
+        duration: SCROLL_DURATION_S,
+        easing: easeOutExpo,
+        autoRaf: true,
+        anchors: true, // smooth-scroll in-page #links too
+      });
+    </script>
+
     <!-- Slider: init all .slider elements on the page -->
     <script src="/assets/js/slider.js" defer></script>
   </body>
