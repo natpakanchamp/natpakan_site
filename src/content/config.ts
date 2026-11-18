@@ -29,6 +29,8 @@ const posts = defineCollection({
     author: z.string().optional(),
     excerpt: z.string().optional(),
     graph: graphSchema.optional(),
+    // Drafts are excluded from every public page; see getPublishedPosts().
+    draft: z.boolean().optional().default(false),
   }),
 });
 

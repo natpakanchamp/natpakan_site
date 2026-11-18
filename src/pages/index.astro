@@ -1,8 +1,8 @@
 ---
-import { getCollection } from 'astro:content';
+import { getPublishedPosts } from '@/lib/posts';
 import HomeLayout from '@/layouts/HomeLayout.astro';
 
-const posts = await getCollection('posts');
+const posts = await getPublishedPosts();
 ---
 
 <HomeLayout posts={posts} />

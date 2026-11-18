@@ -1,8 +1,8 @@
 ---
-import { getCollection } from 'astro:content';
+import { getPublishedPosts } from '@/lib/posts';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 
-const allPosts = await getCollection('posts');
+const allPosts = await getPublishedPosts();
 const notes = allPosts
   .filter(p => p.data.categories?.includes('notes'))
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());

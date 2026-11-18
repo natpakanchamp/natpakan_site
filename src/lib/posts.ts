@@ -9,8 +9,13 @@ export function isNotesPost(post: CollectionEntry<'posts'>): boolean {
   return post.data.categories?.includes('notes') ?? false;
 }
 
+/** All posts that are not drafts. Every public page must use this, not getCollection. */
+export async function getPublishedPosts(): Promise<CollectionEntry<'posts'>[]> {
+  return getCollection('posts', ({ data }) => !data.draft);
+}
+
 export async function findPostByTitleSlug(slug: string): Promise<CollectionEntry<'posts'> | undefined> {
-  const posts = await getCollection('posts');
+  const posts = await getPublishedPosts();
   return posts.find((p) => titleSlugOf(p) === slug);
 }
 

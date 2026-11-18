@@ -1,10 +1,9 @@
 ---
-import { getCollection } from 'astro:content';
 import PostLayout from '@/layouts/PostLayout.astro';
-import { titleSlugOf, isNotesPost } from '@/lib/posts';
+import { getPublishedPosts, titleSlugOf, isNotesPost } from '@/lib/posts';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('posts');
+  const posts = await getPublishedPosts();
 
   return posts.map(post => {
     // Extract YYYY/MM/DD from filename (avoids UTC timezone shift issues)
