@@ -1,6 +1,7 @@
-import { beforeAll, describe, expect, test } from 'vitest';
-import { SignJWT, createLocalJWKSet, exportJWK, generateKeyPair, type JWK } from 'jose';
-import { verifyAdminRequest, type AccessConfig } from '@/lib/admin/auth';
+import { beforeAll, describe, expect, test, vi } from 'vitest';
+import { SignJWT, exportJWK, generateKeyPair } from 'jose';
+import { remoteAccessKeys, verifyAdminRequest, type AccessConfig } from '@/lib/admin/auth';
+import type { KeyResolver } from '@/lib/rs256';
 
 const config: AccessConfig = {
   teamDomain: 'https://natpakan.cloudflareaccess.com',
@@ -10,15 +11,16 @@ const config: AccessConfig = {
 
 let privateKey: CryptoKey;
 let otherPrivateKey: CryptoKey;
-let jwks: ReturnType<typeof createLocalJWKSet>;
+let jwks: KeyResolver;
+let publicJwk: JsonWebKey;
 
 beforeAll(async () => {
   const pair = await generateKeyPair('RS256');
   const other = await generateKeyPair('RS256');
   privateKey = pair.privateKey;
   otherPrivateKey = other.privateKey;
-  const jwk: JWK = { ...(await exportJWK(pair.publicKey)), kid: 'k1', alg: 'RS256' };
-  jwks = createLocalJWKSet({ keys: [jwk] });
+  publicJwk = await exportJWK(pair.publicKey);
+  jwks = async (kid) => (kid === 'k1' ? pair.publicKey : null);
 });
 
 async function token(
@@ -97,5 +99,29 @@ describe('verifyAdminRequest', () => {
     const jwt = await token({ email: 'owner@example.com' });
     const req = request(jwt, { method: 'DELETE', headers: { Origin: 'https://site.test' } });
     expect((await verifyAdminRequest(req, config, jwks)).ok).toBe(true);
+  });
+});
+
+describe('remoteAccessKeys', () => {
+  test('fetches the Access certs once, then refetches only for an unknown kid', async () => {
+    const certs = (kids: string[]) => new Response(JSON.stringify({ keys: kids.map((kid) => ({ ...publicJwk, kid, kty: 'RSA' })) }));
+    const fetchMock = vi.fn().mockResolvedValueOnce(certs(['k1'])).mockResolvedValueOnce(certs(['k1', 'k2']));
+    const resolve = remoteAccessKeys('https://rotation.cloudflareaccess.com', fetchMock);
+
+    expect(await resolve('k1')).not.toBeNull();
+    expect(await resolve('k1')).not.toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith('https://rotation.cloudflareaccess.com/cdn-cgi/access/certs');
+
+    expect(await resolve('k2')).not.toBeNull();
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(await resolve(undefined)).toBeNull();
+  });
+
+  test('a valid token verifies end-to-end through the remote key resolver', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(JSON.stringify({ keys: [{ ...publicJwk, kid: 'k1', kty: 'RSA' }] })));
+    const resolve = remoteAccessKeys('https://e2e-team.cloudflareaccess.com', fetchMock);
+    const result = await verifyAdminRequest(request(await token({ email: 'owner@example.com' })), config, resolve);
+    expect(result.ok).toBe(true);
   });
 });

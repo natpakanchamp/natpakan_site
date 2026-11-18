@@ -1,4 +1,4 @@
-import { SignJWT, importPKCS8 } from 'jose';
+import { importPkcs8Pem, signRs256 } from './rs256';
 
 /**
  * OAuth2 access token for a Google service account (JWT bearer grant), so the
@@ -42,15 +42,12 @@ export async function getGoogleAccessToken(
   const cached = cache.get(cacheKey);
   if (cached && cached.expiresAt - REFRESH_MARGIN_MS > now()) return cached.value;
 
-  const key = await importPKCS8(account.private_key, 'RS256');
+  const key = await importPkcs8Pem(account.private_key);
   const issuedAt = Math.floor(now() / 1000);
-  const assertion = await new SignJWT({ scope })
-    .setProtectedHeader({ alg: 'RS256', typ: 'JWT' })
-    .setIssuer(account.client_email)
-    .setAudience(TOKEN_URL)
-    .setIssuedAt(issuedAt)
-    .setExpirationTime(issuedAt + TOKEN_LIFETIME_S)
-    .sign(key);
+  const assertion = await signRs256(
+    { iss: account.client_email, aud: TOKEN_URL, scope, iat: issuedAt, exp: issuedAt + TOKEN_LIFETIME_S },
+    key,
+  );
 
   const res = await fetchImpl(TOKEN_URL, {
     method: 'POST',
