@@ -13,11 +13,32 @@ const R_BASE = 0.92;
 
 // timeline (seconds)
 const T_GROW: [number, number] = [0.0, 3.6];
-const T_GARLAND: [number, number] = [3.8, 6.0];
+const T_GARLAND: [number, number] = [3.8, 6.8]; // long enough to follow the white head as it winds up
 const T_BALLS: [number, number] = [5.6, 8.0];
 const T_LIGHTS: [number, number] = [7.6, 10.0];
 const T_GIFTS: [number, number] = [9.0, 11.0];
 export const T_STAR = 11.2;
+
+/**
+ * Build-front sparkle: only this share of points flash white as their layer grows (the rest
+ * fade in green), and within a layer the flash spreads from the trunk out to the branch tips.
+ */
+const SPARK_NEEDLE = 0.55;
+const SPARK_INNER = 0.4;
+const SPARK_TRUNK = 0.45;
+/**
+ * The tree grows in TIERS overlapping waves, bottom to top. In each tier the core lights first,
+ * then a ring of light runs out along the branches to the tips (GROW_OUT_S). The next tier
+ * starts before the previous ring reaches the tips, so the waves cascade into each other.
+ */
+const TIERS = 8;
+const CORE_LEAD_S = 0.08; // core flashes this much before the ring sets off
+const GROW_OUT_S = 0.7; // trunk → tip
+/** A present's white flash sweeps from its base up to the bow over this long. */
+const GIFT_SWEEP_S = 0.35;
+/** Separate RNG for sparks so the tree's geometry (driven by the main RNG) is unchanged. */
+let sparkRandom: () => number = Math.random;
+const sparkle = (share: number, at: number) => (sparkRandom() < share ? at : NaN);
 
 type Rgb = readonly [number, number, number];
 export const WHITE: Rgb = [0.95, 0.97, 1.0];
@@ -62,11 +83,15 @@ function makeRng(seed: number) {
 
 // ---------------------------------------------------------------- helpers
 export const envelope = (y: number) => R_BASE * Math.pow(1 - Math.min(Math.max((y - Y0) / (Y1 - Y0), 0), 1), 1.05);
-const growTime = (y: number) => T_GROW[0] + (T_GROW[1] - T_GROW[0]) * Math.min(Math.max((y - GROUND) / (Y1 - GROUND), 0), 1);
 const LAYER_COUNT = 24;
 const LAYER_START = Y0 + 0.02;
 const LAYER_STEP = (Y1 - 0.06 - LAYER_START) / (LAYER_COUNT - 1);
-const snapLayer = (y: number) => LAYER_START + Math.floor((y - LAYER_START) / LAYER_STEP) * LAYER_STEP;
+/** Gap between tier starts; shorter than a tier's own spread, so consecutive tiers overlap. */
+const TIER_STAGGER_S = (T_GROW[1] - T_GROW[0] - CORE_LEAD_S - GROW_OUT_S) / (TIERS - 1);
+/** Whorl index for a height (the trunk below the first whorl counts as whorl 0). */
+const layerIndex = (y: number) => Math.min(Math.max(Math.floor((y - LAYER_START) / LAYER_STEP), 0), LAYER_COUNT - 1);
+/** When the tier containing whorl `i` starts growing. */
+const tierStart = (i: number) => T_GROW[0] + Math.floor((i * TIERS) / LAYER_COUNT) * TIER_STAGGER_S;
 
 function fibSphere(n: number): number[][] {
   return Array.from({ length: n }, (_, k) => {
@@ -165,8 +190,10 @@ function addNeedles(q: Builder, rng: ReturnType<typeof makeRng>, tips: number[][
         const snow = s > 0.5 && rng.random() < 0.06 * s && ny > 0.5;
         const g = rng.random();
         const green = [0.1 + 0.12 * g, 0.48 + 0.38 * g, 0.18 + 0.14 * g];
-        q.add(p, nrm, snow ? WHITE : green, snow ? Kind.Snow : Kind.Needle, growTime(y) + 0.45 * s,
-          { base: snow ? 1 : ao, hot: growTime(y) });
+        // flash exactly as the needle grows in, so a ring of light runs from the trunk out to the tips
+        const grownAt = tierStart(i) + CORE_LEAD_S + GROW_OUT_S * s;
+        q.add(p, nrm, snow ? WHITE : green, snow ? Kind.Snow : Kind.Needle, grownAt,
+          { base: snow ? 1 : ao, hot: sparkle(SPARK_NEEDLE, grownAt) });
       }
       const tl = 0.93 * L;
       tips.push([d[0] * tl, y + 0.06 * tl - 0.2 * tl * tl, d[2] * tl]);
@@ -180,14 +207,14 @@ function addInnerAndTrunk(q: Builder, rng: ReturnType<typeof makeRng>) {
     const phi = rng.random() * TAU;
     const r = 0.6 * envelope(y);
     q.add([Math.cos(phi) * r, y, Math.sin(phi) * r], [Math.cos(phi), 0.3, Math.sin(phi)], [0.1, 0.42, 0.16], Kind.Inner,
-      growTime(y), { base: 0.75, hot: growTime(snapLayer(y)) });
+      tierStart(layerIndex(y)), { base: 0.75, hot: sparkle(SPARK_INNER, tierStart(layerIndex(y))) });
   }
   for (let k = 0; k < 1500; k++) {
     const y = GROUND + rng.random() * (Y0 + 0.1 - GROUND);
     const phi = rng.random() * TAU;
     const bark = 0.75 + 0.25 * Math.sign(Math.sin(phi * 30 + y * 5));
     q.add([Math.cos(phi) * 0.08, y, Math.sin(phi) * 0.08], [Math.cos(phi), 0, Math.sin(phi)],
-      [0.42 * bark, 0.26 * bark, 0.13 * bark], Kind.Trunk, growTime(y), { hot: growTime(snapLayer(y)) });
+      [0.42 * bark, 0.26 * bark, 0.13 * bark], Kind.Trunk, tierStart(layerIndex(y)), { hot: sparkle(SPARK_TRUNK, tierStart(layerIndex(y))) });
   }
 }
 
@@ -205,7 +232,9 @@ function addGarland(q: Builder, rng: ReturnType<typeof makeRng>) {
       const p = [Math.cos(ag) * rg + JITTER * rng.normal(), yg - 0.07 * Math.abs(Math.sin(ag * 2.5)) + JITTER * rng.normal(),
         Math.sin(ag) * rg + JITTER * rng.normal()];
       const nrm = [Math.cos(ag) + 0.6 * rng.normal(), 0.3 + 0.6 * rng.normal(), Math.sin(ag) + 0.6 * rng.normal()];
-      q.add(p, nrm, TINSEL_GOLD, Kind.Tinsel, T_GARLAND[0] + u * (T_GARLAND[1] - T_GARLAND[0]), { phase: rng.random() * TAU });
+      const t0 = T_GARLAND[0] + u * (T_GARLAND[1] - T_GARLAND[0]);
+      // hot = t0: each bit of garland lights up white the moment it is wound on (see render.ts)
+      q.add(p, nrm, TINSEL_GOLD, Kind.Tinsel, t0, { phase: rng.random() * TAU, hot: t0 });
     }
   }
 }
@@ -275,7 +304,9 @@ function addPresents(q: Builder, rng: ReturnType<typeof makeRng>) {
     const place = (p: number[], nrm: number[], ribbon: boolean) => {
       const rp = rotY(p, rot);
       q.add([rp[0] + centre[0], rp[1] + centre[1], rp[2] + centre[2]], rotY(nrm, rot), ribbon ? rib : body,
-        ribbon ? Kind.Ribbon : Kind.Gift, t0, { base: ribbon ? 1 : 0.9, centre, pop: true });
+        ribbon ? Kind.Ribbon : Kind.Gift, t0,
+        // white flash sweeping up from the base (local y 0) to the top of the bow
+        { base: ribbon ? 1 : 0.9, centre, pop: true, hot: t0 + GIFT_SWEEP_S * Math.min(Math.max(p[1] / (h + 0.06), 0), 1) });
     };
     const m = Math.floor(5000 * total);
     for (let k = 0; k < m; k++) {
@@ -296,6 +327,7 @@ function addPresents(q: Builder, rng: ReturnType<typeof makeRng>) {
 
 export function buildModel(): Model {
   const rng = makeRng(7);
+  sparkRandom = makeRng(99).random;
   const q = new Builder();
   const tips: number[][] = [];
   addNeedles(q, rng, tips);

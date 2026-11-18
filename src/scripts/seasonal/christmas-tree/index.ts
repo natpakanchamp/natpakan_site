@@ -16,7 +16,7 @@ function treeHitTest(frame: Frame) {
     const c0 = Math.floor((box.x - rect.left) / cw) - 1, c1 = Math.floor((box.x + box.w - rect.left) / cw) + 1;
     const r0 = Math.floor((box.y - rect.top) / ch) - 1, r1 = Math.floor((box.y + box.h - rect.top) / ch) + 1;
     for (let r = Math.max(r0, 0); r <= Math.min(r1, ROWS - 1); r++) {
-      for (let c = Math.max(c0, 0); c <= Math.min(c1, COLS - 1); c++) if (frame.chars[r * COLS + c]) return true;
+      for (let c = Math.max(c0, 0); c <= Math.min(c1, COLS - 1); c++) if (frame.solid[r * COLS + c]) return true; // the snowfield doesn't block snow
     }
     return false;
   };

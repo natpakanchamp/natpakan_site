@@ -3,7 +3,8 @@
  * paints it to a canvas. Ported from scene()/star() in christmas_tree.py,
  * minus the sky, snow, ground, message and HUD.
  */
-import { GOLD, Kind, T_STAR, TAU, Y1, type Model } from './model';
+import { buildGround, drawGround } from './ground';
+import { GOLD, GROUND, Kind, T_STAR, TAU, Y1, type Model } from './model';
 
 // grid + camera (re-framed so the tree and presents fill a compact card)
 export const COLS = 70;
@@ -22,6 +23,12 @@ const STAR_Y = Y1 + 0.44;
 const ROT_SPEED = 17.76; // degrees per second
 const HOT_TIME = 0.45;
 const COOL_TIME = 0.12;
+/** The garland's leading edge glows white and fades back to gold over this long, like a comet tail. */
+const TINSEL_TRAIL_S = 0.8;
+/** Presents flash white as they pop in, then fade back to their colours. */
+const GIFT_TRAIL_S = 0.6;
+/** Needles flash and fade fast, so the flash reads as a ring travelling out along the branch. */
+const NEEDLE_TRAIL_S = 0.4;
 const HOT: readonly number[] = [1.35, 1.35, 1.3];
 const LEVELS = 16;
 /** Ambient light on baubles; lower = deeper shadow on their far side. */
@@ -57,10 +64,13 @@ export interface Frame {
   chars: string[];
   /** r, g, b per cell (0..~1.5; >1 means "glows"). */
   colors: Float32Array;
+  /** 1 where the tree/star drew (can glow, blocks site snow); 0 for the snowfield backdrop. */
+  solid: Uint8Array;
 }
 
 export function createFrame(): Frame {
-  return { chars: new Array(COLS * ROWS).fill(''), colors: new Float32Array(COLS * ROWS * 3) };
+  const n = COLS * ROWS;
+  return { chars: new Array(n).fill(''), colors: new Float32Array(n * 3), solid: new Uint8Array(n) };
 }
 
 const clamp = (x: number, lo = 0, hi = 1) => Math.min(Math.max(x, lo), hi);
@@ -73,13 +83,18 @@ const easeOutBack = (x: number) => {
   return 1 + 2.70158 * c ** 3 + 1.70158 * c ** 2;
 };
 
+const ground = buildGround({
+  cols: COLS, rows: ROWS, horizon: ROWS * HORIZON, scaleRows: ROWS * FOV, aspect: ASPECT, camD: CAM_D, camY: CAM_Y, groundY: GROUND,
+});
+
 // scratch buffers reused every frame
 const zbuf = new Float32Array(COLS * ROWS);
 const winner = new Int32Array(COLS * ROWS);
 const scratch = { x: 0, y: 0, z: 0, nx: 0, ny: 0, nz: 0, age: 0 };
 
-function setCell(f: Frame, idx: number, ch: string, r: number, g: number, b: number) {
+function setCell(f: Frame, idx: number, ch: string, r: number, g: number, b: number, solid = 1) {
   f.chars[idx] = ch;
+  f.solid[idx] = solid;
   f.colors[idx * 3] = r;
   f.colors[idx * 3 + 1] = g;
   f.colors[idx * 3 + 2] = b;
@@ -126,14 +141,20 @@ function shade(m: Model, i: number, f: Frame, cell: number, t: number, tb: numbe
   const hot = m.hot[i];
   const grows = !Number.isNaN(hot);
   const hotAge = grows ? tb - hot : 1e9;
-  const heat = hotAge < HOT_TIME ? 1 - (0.3 * hotAge) / HOT_TIME : clamp(0.7 * (1 - (hotAge - HOT_TIME) / COOL_TIME));
+  const trail = kind === Kind.Tinsel ? TINSEL_TRAIL_S
+    : kind === Kind.Gift || kind === Kind.Ribbon ? GIFT_TRAIL_S
+    : kind === Kind.Needle || kind === Kind.Snow ? NEEDLE_TRAIL_S
+    : 0; // inner cone + trunk keep the held flash: the core lights first, then the ring spreads out
+  const heat = hotAge < 0 ? 0 // the flash hasn't reached this point yet
+    : trail ? clamp(1 - hotAge / trail) ** 1.2 // bright white head, soft fade back to its colour
+    : hotAge < HOT_TIME ? 1 - (0.3 * hotAge) / HOT_TIME : clamp(0.7 * (1 - (hotAge - HOT_TIME) / COOL_TIME));
   const fadeIn = grows ? 1 : clamp(age / 0.35);
   lum *= fadeIn * clamp(1.5 - 0.1 * z, 0.6, 1.1);
 
   const level = Math.floor(clamp(lum) ** 0.8 * (LEVELS - 1));
   let glyph = LUT[kind][level];
   if (kind === Kind.Tinsel && sparkle) glyph = '*';
-  if (heat > 0.25) glyph = '#';
+  if (heat > 0.25) glyph = heat < 0.6 ? '*' : '#'; // hottest '#', cooling sparks '*'
   if (!glyph) return;
   const k = kind === Kind.Light ? 0.6 + 0.7 * lum : kind === Kind.Ball ? 0.2 + 0.9 * lum : 0.3 + 0.8 * lum;
   setCell(f, cell,  glyph,
@@ -193,9 +214,12 @@ function drawStar(f: Frame, cx: number, cy: number, size: number, t: number, pow
 export function renderScene(m: Model, f: Frame, t: number, tb: number): void {
   f.chars.fill('');
   f.colors.fill(0);
+  f.solid.fill(0);
   zbuf.fill(Infinity);
   winner.fill(-1);
   const theta = (ROT_SPEED * t * Math.PI) / 180;
+  // snowfield first, so the tree and presents cover it
+  drawGround(ground, CAM_D, theta, (cell, ch, r, g, b) => setCell(f, cell, ch, r, g, b, 0));
   const cos = Math.cos(theta), sin = Math.sin(theta);
 
   for (let i = 0; i < m.n; i++) {
@@ -241,7 +265,7 @@ export function paint(f: Frame, ctx: CanvasRenderingContext2D, glow: CanvasRende
     const y = Math.floor(idx / COLS) * CELL_H + CELL_H / 2;
     ctx.fillStyle = style;
     ctx.fillText(ch, x, y);
-    if (glow && Math.max(r, g, b) > GLOW_THRESHOLD) {
+    if (glow && f.solid[idx] && Math.max(r, g, b) > GLOW_THRESHOLD) { // the snowfield never glows
       glow.fillStyle = style;
       glow.fillText(ch, x, y);
     }
