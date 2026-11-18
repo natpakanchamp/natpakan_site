@@ -18,9 +18,12 @@ export function base64UrlEncode(input: Uint8Array | string): string {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
-export function base64UrlDecode(input: string): Uint8Array {
+export function base64UrlDecode(input: string): Uint8Array<ArrayBuffer> {
   const padded = input.replace(/-/g, '+').replace(/_/g, '/').padEnd(Math.ceil(input.length / 4) * 4, '=');
-  return Uint8Array.from(atob(padded), (c) => c.charCodeAt(0));
+  const binary = atob(padded);
+  const bytes = new Uint8Array(new ArrayBuffer(binary.length));
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
 }
 
 function decodeJson(segment: string): Record<string, unknown> {
