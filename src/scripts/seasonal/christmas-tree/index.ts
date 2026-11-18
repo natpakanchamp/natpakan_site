@@ -46,15 +46,10 @@ export function initChristmasTree(root: HTMLElement): void {
   const model = buildModel();
   const frame = createFrame();
   registerSnowShield(root, treeHitTest(frame));
-  // The site sets data-theme on <html>; follow it (and its live toggle) to pick the palette.
-  const isLightPage = () => document.documentElement.getAttribute('data-theme') !== 'dark';
-  let lastT = 0;
   const draw = (t: number) => {
-    lastT = t;
     renderScene(model, frame, t, Math.min(t, BUILD_END_S));
-    paint(frame, ctx, glow, isLightPage());
+    paint(frame, ctx, glow);
   };
-  new MutationObserver(() => draw(lastT)).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (reduceMotion.matches) {

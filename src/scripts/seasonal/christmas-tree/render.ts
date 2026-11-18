@@ -220,34 +220,28 @@ export function renderScene(m: Model, f: Frame, t: number, tb: number): void {
   }
 }
 
-/** On a light page the scene's whites and golds would vanish, so every colour is scaled down. */
-const LIGHT_PAGE_SCALE = 0.68;
-const NEAR_WHITE_INK = 0.32;
 /** Cells brighter than this (max channel) are copied to the bloom layer. */
 const GLOW_THRESHOLD = 0.62;
 
 /**
  * Paint a frame. `glow` receives only the over-bright cells; CSS blurs it into a bloom.
- * `onLightPage` darkens the palette so the tree still reads without a dark backdrop.
+ * The tree always sits on black (the dark page, or its own black backdrop on the light
+ * theme — see ChristmasTree.astro), so one full-strength palette serves both themes.
  */
-export function paint(f: Frame, ctx: CanvasRenderingContext2D, glow: CanvasRenderingContext2D | null, onLightPage = false): void {
-  const k = onLightPage ? LIGHT_PAGE_SCALE : 1;
+export function paint(f: Frame, ctx: CanvasRenderingContext2D, glow: CanvasRenderingContext2D | null): void {
   const w = COLS * CELL_W, h = ROWS * CELL_H;
   ctx.clearRect(0, 0, w, h);
   glow?.clearRect(0, 0, w, h);
   for (let idx = 0; idx < f.chars.length; idx++) {
     const ch = f.chars[idx];
     if (!ch) continue;
-    let r = Math.min(f.colors[idx * 3], 1), g = Math.min(f.colors[idx * 3 + 1], 1), b = Math.min(f.colors[idx * 3 + 2], 1);
-    // On a light page near-white glyphs (snow, the white-hot build front) would vanish: ink them dark instead.
-    const ink = onLightPage && Math.min(r, g, b) > 0.8 ? NEAR_WHITE_INK : k;
-    r *= ink; g *= ink; b *= ink;
-    const style = `rgb(${Math.min(255, r * 255) | 0},${Math.min(255, g * 255) | 0},${Math.min(255, b * 255) | 0})`;
+    const r = Math.min(f.colors[idx * 3], 1), g = Math.min(f.colors[idx * 3 + 1], 1), b = Math.min(f.colors[idx * 3 + 2], 1);
+    const style = `rgb(${(r * 255) | 0},${(g * 255) | 0},${(b * 255) | 0})`;
     const x = (idx % COLS) * CELL_W + CELL_W / 2;
     const y = Math.floor(idx / COLS) * CELL_H + CELL_H / 2;
     ctx.fillStyle = style;
     ctx.fillText(ch, x, y);
-    if (glow && !onLightPage && Math.max(r, g, b) > GLOW_THRESHOLD) {
+    if (glow && Math.max(r, g, b) > GLOW_THRESHOLD) {
       glow.fillStyle = style;
       glow.fillText(ch, x, y);
     }
