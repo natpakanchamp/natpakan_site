@@ -21,14 +21,16 @@ const HORIZON = 20.32 / ROWS;
 /** World height of the star's centre: lifted clear of the tip so its shape reads on its own. */
 const STAR_Y = Y1 + 0.44;
 const ROT_SPEED = 17.76; // degrees per second
-const HOT_TIME = 0.45;
-const COOL_TIME = 0.12;
 /** The garland's leading edge glows white and fades back to gold over this long, like a comet tail. */
 const TINSEL_TRAIL_S = 0.8;
 /** Presents flash white as they pop in, then fade back to their colours. */
 const GIFT_TRAIL_S = 0.6;
-/** Needles flash and fade fast, so the flash reads as a ring travelling out along the branch. */
-const NEEDLE_TRAIL_S = 0.4;
+/**
+ * Build waves: needles and the core fade fast, so only the rows growing right now are white —
+ * a thin band per wave rather than a tall block left behind it.
+ */
+const NEEDLE_TRAIL_S = 0.22;
+const CORE_TRAIL_S = 0.25;
 const HOT: readonly number[] = [1.35, 1.35, 1.3];
 const LEVELS = 16;
 /** Ambient light on baubles; lower = deeper shadow on their far side. */
@@ -144,10 +146,9 @@ function shade(m: Model, i: number, f: Frame, cell: number, t: number, tb: numbe
   const trail = kind === Kind.Tinsel ? TINSEL_TRAIL_S
     : kind === Kind.Gift || kind === Kind.Ribbon ? GIFT_TRAIL_S
     : kind === Kind.Needle || kind === Kind.Snow ? NEEDLE_TRAIL_S
-    : 0; // inner cone + trunk keep the held flash: the core lights first, then the ring spreads out
+    : CORE_TRAIL_S; // inner cone + trunk: the core lights first, then the ring spreads out
   const heat = hotAge < 0 ? 0 // the flash hasn't reached this point yet
-    : trail ? clamp(1 - hotAge / trail) ** 1.2 // bright white head, soft fade back to its colour
-    : hotAge < HOT_TIME ? 1 - (0.3 * hotAge) / HOT_TIME : clamp(0.7 * (1 - (hotAge - HOT_TIME) / COOL_TIME));
+    : clamp(1 - hotAge / trail) ** 1.2; // bright white head, soft fade back to its colour
   const fadeIn = grows ? 1 : clamp(age / 0.35);
   lum *= fadeIn * clamp(1.5 - 0.1 * z, 0.6, 1.1);
 

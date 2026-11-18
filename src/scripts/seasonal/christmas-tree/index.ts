@@ -1,10 +1,10 @@
-import { buildModel } from './model';
+import { BUILD_END_S, buildModel } from './model';
 import { registerSnowShield } from '../snow-shield';
 import { CELL_H, CELL_W, COLS, ROWS, createFrame, paint, renderScene, type Frame } from './render';
 
 const FRAME_MS = 1000 / 30;
 /** The build timeline ends shortly after the star lights up; after that the tree only turns. */
-const BUILD_END_S = 13;
+
 /** Frame shown when the visitor prefers reduced motion. */
 const STILL_T = 17;
 const FONT = `${CELL_H - 0.5}px ui-monospace, "SF Mono", Menlo, Consolas, monospace`;

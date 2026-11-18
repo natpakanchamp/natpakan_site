@@ -12,12 +12,14 @@ export const Y1 = 1.05;
 const R_BASE = 0.92;
 
 // timeline (seconds)
-const T_GROW: [number, number] = [0.0, 3.6];
-const T_GARLAND: [number, number] = [3.8, 6.8]; // long enough to follow the white head as it winds up
-const T_BALLS: [number, number] = [5.6, 8.0];
-const T_LIGHTS: [number, number] = [7.6, 10.0];
-const T_GIFTS: [number, number] = [9.0, 11.0];
-export const T_STAR = 11.2;
+const T_GROW: [number, number] = [0.0, 2.4];
+const T_GARLAND: [number, number] = [2.6, 5.6]; // long enough to follow the white head as it winds up
+const T_BALLS: [number, number] = [4.4, 6.8];
+const T_LIGHTS: [number, number] = [6.4, 8.8];
+const T_GIFTS: [number, number] = [7.8, 9.8];
+export const T_STAR = 10.0;
+/** Shortly after the star lights, the build is done and the tree only turns (see index.ts). */
+export const BUILD_END_S = 11.8;
 
 /**
  * Build-front sparkle: only this share of points flash white as their layer grows (the rest
@@ -31,9 +33,13 @@ const SPARK_TRUNK = 0.45;
  * then a ring of light runs out along the branches to the tips (GROW_OUT_S). The next tier
  * starts before the previous ring reaches the tips, so the waves cascade into each other.
  */
-const TIERS = 8;
+const TIERS = 12;
 const CORE_LEAD_S = 0.08; // core flashes this much before the ring sets off
-const GROW_OUT_S = 0.7; // trunk → tip
+const GROW_OUT_S = 0.5; // trunk → tip
+/** Height where the garland begins: level with the tips of the lowest, drooping branches. */
+const GARLAND_START_Y = Y0 - 0.16;
+/** The trunk rises from the floor to the first whorl with the light before the first wave. */
+const TRUNK_RISE_S = 0.2;
 /** A present's white flash sweeps from its base up to the bow over this long. */
 const GIFT_SWEEP_S = 0.35;
 /** Separate RNG for sparks so the tree's geometry (driven by the main RNG) is unchanged. */
@@ -87,11 +93,18 @@ const LAYER_COUNT = 24;
 const LAYER_START = Y0 + 0.02;
 const LAYER_STEP = (Y1 - 0.06 - LAYER_START) / (LAYER_COUNT - 1);
 /** Gap between tier starts; shorter than a tier's own spread, so consecutive tiers overlap. */
-const TIER_STAGGER_S = (T_GROW[1] - T_GROW[0] - CORE_LEAD_S - GROW_OUT_S) / (TIERS - 1);
-/** Whorl index for a height (the trunk below the first whorl counts as whorl 0). */
-const layerIndex = (y: number) => Math.min(Math.max(Math.floor((y - LAYER_START) / LAYER_STEP), 0), LAYER_COUNT - 1);
+const TIER_STAGGER_S = (T_GROW[1] - T_GROW[0] - TRUNK_RISE_S - CORE_LEAD_S - GROW_OUT_S) / (TIERS - 1);
 /** When the tier containing whorl `i` starts growing. */
-const tierStart = (i: number) => T_GROW[0] + Math.floor((i * TIERS) / LAYER_COUNT) * TIER_STAGGER_S;
+const tierStart = (i: number) => T_GROW[0] + TRUNK_RISE_S + Math.floor((i * TIERS) / LAYER_COUNT) * TIER_STAGGER_S;
+/**
+ * When the light reaches height y on the trunk/core: rising from the floor, then following
+ * the waves up the tree. Nothing on the core shows before the light gets there.
+ */
+const lightReaches = (y: number) => {
+  if (y < LAYER_START) return T_GROW[0] + TRUNK_RISE_S * Math.min(Math.max((y - GROUND) / (LAYER_START - GROUND), 0), 1);
+  const whorl = Math.min((y - LAYER_START) / LAYER_STEP, LAYER_COUNT - 1); // fractional, so the core rises smoothly
+  return T_GROW[0] + TRUNK_RISE_S + ((whorl * TIERS) / LAYER_COUNT) * TIER_STAGGER_S;
+};
 
 function fibSphere(n: number): number[][] {
   return Array.from({ length: n }, (_, k) => {
@@ -199,6 +212,7 @@ function addNeedles(q: Builder, rng: ReturnType<typeof makeRng>, tips: number[][
       tips.push([d[0] * tl, y + 0.06 * tl - 0.2 * tl * tl, d[2] * tl]);
     }
   }
+
 }
 
 function addInnerAndTrunk(q: Builder, rng: ReturnType<typeof makeRng>) {
@@ -207,14 +221,14 @@ function addInnerAndTrunk(q: Builder, rng: ReturnType<typeof makeRng>) {
     const phi = rng.random() * TAU;
     const r = 0.6 * envelope(y);
     q.add([Math.cos(phi) * r, y, Math.sin(phi) * r], [Math.cos(phi), 0.3, Math.sin(phi)], [0.1, 0.42, 0.16], Kind.Inner,
-      tierStart(layerIndex(y)), { base: 0.75, hot: sparkle(SPARK_INNER, tierStart(layerIndex(y))) });
+      lightReaches(y), { base: 0.75, hot: sparkle(SPARK_INNER, lightReaches(y)) });
   }
   for (let k = 0; k < 1500; k++) {
     const y = GROUND + rng.random() * (Y0 + 0.1 - GROUND);
     const phi = rng.random() * TAU;
     const bark = 0.75 + 0.25 * Math.sign(Math.sin(phi * 30 + y * 5));
     q.add([Math.cos(phi) * 0.08, y, Math.sin(phi) * 0.08], [Math.cos(phi), 0, Math.sin(phi)],
-      [0.42 * bark, 0.26 * bark, 0.13 * bark], Kind.Trunk, tierStart(layerIndex(y)), { hot: sparkle(SPARK_TRUNK, tierStart(layerIndex(y))) });
+      [0.42 * bark, 0.26 * bark, 0.13 * bark], Kind.Trunk, lightReaches(y), { hot: sparkle(SPARK_TRUNK, lightReaches(y)) });
   }
 }
 
@@ -222,11 +236,12 @@ function addGarland(q: Builder, rng: ReturnType<typeof makeRng>) {
   const N = 2600;
   const JITTER = 0.013;
   // Fewer turns = a steeper climb per pass, so the front of each loop reads as a diagonal, not a flat band.
-  const TURNS = 1.7;
+  const TURNS = 2.2;
   for (let strand = 0; strand < 4; strand++) {
     for (let k = 0; k < N; k++) {
       const u = k / (N - 1);
-      const yg = Y0 + 0.15 + (Y1 - Y0 - 0.45) * u;
+      // starts down among the drooping lowest branches, so the garland wraps from the very base
+      const yg = GARLAND_START_Y + (Y1 - 0.26 - GARLAND_START_Y) * u;
       const ag = TAU * TURNS * u + 0.9;
       const rg = envelope(yg) + 0.1; // a little proud of the needles so branches don't hide it
       const p = [Math.cos(ag) * rg + JITTER * rng.normal(), yg - 0.07 * Math.abs(Math.sin(ag * 2.5)) + JITTER * rng.normal(),
