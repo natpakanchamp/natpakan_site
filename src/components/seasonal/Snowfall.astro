@@ -1,0 +1,36 @@
+---
+/**
+ * Falling ASCII snow over the whole page (port of snow.py). Seasonal: render it
+ * inside <Seasonal id="snow">. Never draws over elements marked [data-snow-shield].
+ */
+---
+
+<canvas class="snowfall" data-snowfall aria-hidden="true"></canvas>
+
+<script>
+  import { initSnowfall } from '@/scripts/seasonal/snowfall';
+  import { isSeasonActiveHere } from '@/lib/seasons';
+
+  document.querySelectorAll<HTMLCanvasElement>('canvas[data-snowfall]').forEach((canvas) => {
+    const gate = canvas.closest<HTMLElement>('[data-season]');
+    if (gate && !isSeasonActiveHere(gate.dataset.season ?? '')) return;
+    try {
+      initSnowfall(canvas);
+    } catch (error) {
+      console.error('[snowfall]', error);
+      canvas.remove(); // decoration only: never break the page
+    }
+  });
+</script>
+
+<style>
+  .snowfall {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    /* above the page content, below the floating header (z-index 100) */
+    z-index: 90;
+    pointer-events: none;
+  }
+</style>

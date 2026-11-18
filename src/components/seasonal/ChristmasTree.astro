@@ -1,0 +1,76 @@
+---
+/**
+ * Rotating ASCII Christmas tree with presents (port of christmas_tree.py).
+ * Seasonal: render it inside <Seasonal id="christmas"> (see SeasonalDecor.astro).
+ * Two stacked canvases: the scene, and a copy of its brightest glyphs that CSS
+ * blurs into a bloom. Pauses offscreen; shows a still frame for reduced motion.
+ */
+---
+
+<figure class="xmas" data-xmas data-snow-shield>
+  <div class="xmas-stage">
+    <canvas data-layer="glow" class="xmas-glow" aria-hidden="true"></canvas>
+    <canvas data-layer="main" class="xmas-main" role="img" aria-label="ต้นคริสต์มาส ASCII พร้อมกล่องของขวัญ"></canvas>
+  </div>
+</figure>
+
+<script>
+  import { initChristmasTree } from '@/scripts/seasonal/christmas-tree';
+  import { isSeasonActiveHere } from '@/lib/seasons';
+
+  document.querySelectorAll<HTMLElement>('[data-xmas]').forEach((el) => {
+    // Out of season: don't build the model or start the animation at all.
+    const gate = el.closest<HTMLElement>('[data-season]');
+    if (gate && !isSeasonActiveHere(gate.dataset.season ?? '')) return;
+    try {
+      initChristmasTree(el);
+    } catch (error) {
+      console.error('[christmas-tree]', error);
+      el.hidden = true; // decoration only: never break the page
+    }
+  });
+</script>
+
+<style>
+  .xmas {
+    margin: 0 0 calc(var(--spacing-unit) * 1.2);
+  }
+
+  .xmas-stage {
+    position: relative;
+    width: 100%;
+    /* 70 cols × 10px : 38 rows × 17px (keep in sync with render.ts) */
+    aspect-ratio: 700 / 646;
+  }
+
+  .xmas-stage canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 600ms var(--ease-out-expo);
+  }
+
+  .xmas[data-ready='true'] canvas { opacity: 1; }
+
+  /* bloom: only the brightest glyphs are drawn here, then blurred and screened on top */
+  .xmas-glow {
+    filter: blur(9px) brightness(1.5) saturate(1.5);
+    mix-blend-mode: screen;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .xmas[data-ready='true'] .xmas-glow { opacity: 1; }
+
+  /* bloom only reads on a dark page; on the light theme the glyphs are darkened instead (see paint) */
+  :global(:root:not([data-theme='dark'])) .xmas-glow { display: none; }
+
+  @media (max-width: 600px) {
+    .xmas-glow { filter: blur(5px) brightness(1.5) saturate(1.5); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .xmas-stage canvas { transition: none; }
+  }
+</style>

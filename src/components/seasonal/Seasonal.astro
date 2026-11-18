@@ -1,0 +1,29 @@
+---
+/**
+ * Shows its content only while season `id` is active (see src/lib/seasons.ts).
+ * Hidden by default; the check runs in the browser so it follows the calendar
+ * every year without a rebuild. Preview with ?season=<id>.
+ */
+import { SEASONS } from '@/lib/seasons';
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+if (!SEASONS[id]) throw new Error(`Unknown season "${id}". Add it to SEASONS in src/lib/seasons.ts.`);
+---
+
+<div class="seasonal" data-season={id} hidden>
+  <slot />
+</div>
+
+<script>
+  import { isSeasonActiveHere } from '@/lib/seasons';
+
+  document.querySelectorAll<HTMLElement>('[data-season]').forEach((el) => {
+    if (!isSeasonActiveHere(el.dataset.season ?? '')) return;
+    el.hidden = false;
+    el.dataset.active = 'true';
+  });
+</script>

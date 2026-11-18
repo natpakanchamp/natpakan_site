@@ -1,0 +1,12 @@
+{
+  "christmas": {
+    "enabled": true,
+    "start": "11-15",
+    "end": "12-30"
+  },
+  "snow": {
+    "enabled": true,
+    "start": "11-15",
+    "end": "12-30"
+  }
+}

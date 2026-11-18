@@ -1,0 +1,12 @@
+---
+/**
+ * Every seasonal decoration on the homepage, each wrapped in <Seasonal> so it
+ * only appears during its dates (configured in src/lib/seasons.ts).
+ */
+import Seasonal from './Seasonal.astro';
+import ChristmasTree from './ChristmasTree.astro';
+---
+
+<Seasonal id="christmas">
+  <ChristmasTree />
+</Seasonal>

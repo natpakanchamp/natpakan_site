@@ -1,6 +1,7 @@
 ---
 import BaseLayout from './BaseLayout.astro';
 import Squircle from '@/components/Squircle.astro';
+import SeasonalDecor from '@/components/seasonal/SeasonalDecor.astro';
 import type { CollectionEntry } from 'astro:content';
 
 interface Props {
@@ -39,6 +40,8 @@ function extractImages(body: string): string[] {
 <BaseLayout title="Home">
   <div class="home">
     <slot />
+
+    <SeasonalDecor />
 
     {blogPosts.length > 0 && (
       <>
