@@ -1,0 +1,96 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { guardAdminPage } from '@/lib/admin/page-guard';
+import { SEASON_IDS, SEASON_LABELS } from '@/lib/seasons';
+
+export const prerender = false;
+
+const guard = await guardAdminPage(Astro);
+const months = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+---
+
+<AdminLayout title="ของตกแต่งตามเทศกาล">
+  {guard.ok ? (
+    <form id="seasons-form" class="seasons" novalidate>
+      <div class="admin-heading">
+        <h1>ของตกแต่งตามเทศกาล</h1>
+        <p class="admin-muted">แสดงบนหน้าแรกทุกปีตามช่วงวันที่ (เวลาไทย) · บันทึกแล้วเว็บจะ build ใหม่ราว 1–2 นาที</p>
+      </div>
+
+      {SEASON_IDS.map((id) => (
+        <fieldset class="season-card" data-season-id={id}>
+          <legend>{SEASON_LABELS[id]}</legend>
+
+          <label class="switch">
+            <input type="checkbox" name={`${id}.enabled`} />
+            <span>เปิดใช้งาน</span>
+          </label>
+
+          <div class="season-range">
+            {(['start', 'end'] as const).map((edge) => (
+              <div class="field">
+                <span>{edge === 'start' ? 'เริ่มแสดง' : 'แสดงถึง (รวมวันนี้)'}</span>
+                <div class="md-input">
+                  <select name={`${id}.${edge}.day`} aria-label={`${SEASON_LABELS[id]} ${edge === 'start' ? 'วันเริ่ม' : 'วันสุดท้าย'}`}>
+                    {Array.from({ length: 31 }, (_, i) => <option value={String(i + 1).padStart(2, '0')}>{i + 1}</option>)}
+                  </select>
+                  <select name={`${id}.${edge}.month`} aria-label={`${SEASON_LABELS[id]} ${edge === 'start' ? 'เดือนเริ่ม' : 'เดือนสุดท้าย'}`}>
+                    {months.map((m, i) => <option value={String(i + 1).padStart(2, '0')}>{m}</option>)}
+                  </select>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p class="season-status admin-muted" data-status></p>
+          <a class="season-preview" href={`/?season=${id}`} target="_blank" rel="noopener">พรีวิวบนหน้าแรก ↗</a>
+        </fieldset>
+      ))}
+
+      <footer class="editor-actions">
+        <p id="save-status" class="admin-muted" role="status">กำลังโหลด…</p>
+        <button type="submit" class="btn btn-primary">บันทึก</button>
+      </footer>
+    </form>
+  ) : (
+    <section class="admin-denied">
+      <h1>{guard.status}</h1>
+      <p>{guard.message}</p>
+    </section>
+  )}
+</AdminLayout>
+
+<script>
+  import { initSeasonsPage } from '@/scripts/admin/seasons';
+  initSeasonsPage();
+</script>
+
+<style>
+  .seasons { display: grid; gap: var(--admin-gap); max-width: 720px; }
+  .season-card {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+    padding: 20px 22px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--admin-radius-lg);
+    background: var(--color-surface);
+  }
+  .season-card legend { font-weight: 700; font-size: 1.15rem; padding: 0 6px; }
+  .season-range { display: flex; flex-wrap: wrap; gap: 20px; }
+  .md-input { display: flex; gap: 6px; }
+  .md-input select {
+    font: inherit;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--admin-radius-sm);
+    padding: 8px 10px;
+  }
+  .md-input select:focus-visible { outline: 2px solid var(--admin-accent); outline-offset: 1px; }
+  .switch { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; width: fit-content; }
+  .switch input { width: 18px; height: 18px; accent-color: var(--admin-accent); }
+  .season-card:has(.switch input:not(:checked)) .season-range { opacity: 0.45; }
+  .season-status[data-on='true'] { color: var(--admin-ok); }
+  .season-preview { font-size: var(--text-sm); color: var(--admin-accent); width: fit-content; }
+</style>

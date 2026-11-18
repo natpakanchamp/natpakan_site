@@ -8,6 +8,8 @@ const legacyContent = '---\ntitle:  "CP Scholarship Bootcamp 2025"\ndate: 2025-1
 
 function fakeGithub(files: Record<string, { content: string; sha: string }> = {}): GithubClient {
   return {
+    getDataFile: vi.fn(),
+    saveDataFile: vi.fn(),
     listPosts: vi.fn(),
     getPost: vi.fn(async (name: string) => files[name] ?? null),
     savePost: vi.fn(async () => ({ sha: 'new-sha', commitUrl: 'https://github.com/c' })),

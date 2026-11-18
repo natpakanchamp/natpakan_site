@@ -23,7 +23,15 @@ export interface SaveResult {
   commitUrl: string;
 }
 
+/** Non-post files the admin may edit. Only these paths are reachable through getDataFile/saveDataFile. */
+export const DATA_FILES = {
+  seasons: 'src/data/seasons.json',
+} as const;
+export type DataFileKey = keyof typeof DATA_FILES;
+
 export interface GithubClient {
+  getDataFile(key: DataFileKey): Promise<{ content: string; sha: string } | null>;
+  saveDataFile(key: DataFileKey, content: string, options: { sha?: string; message: string }): Promise<SaveResult>;
   listPosts(): Promise<PostRef[]>;
   getPost(name: string): Promise<{ content: string; sha: string } | null>;
   savePost(name: string, content: string, options: { sha?: string; message: string }): Promise<SaveResult>;
@@ -51,8 +59,9 @@ export function createGithubClient(config: GithubConfig, fetchImpl: typeof fetch
     'User-Agent': 'site-admin',
     'Content-Type': 'application/json',
   };
-  const contentsUrl = (name?: string): string =>
-    `${API}/repos/${config.repo}/contents/${POSTS_DIR}${name ? `/${encodeURIComponent(name)}` : ''}`;
+  const pathUrl = (path: string): string =>
+    `${API}/repos/${config.repo}/contents/${path.split('/').map(encodeURIComponent).join('/')}`;
+  const contentsUrl = (name?: string): string => pathUrl(name ? `${POSTS_DIR}/${name}` : POSTS_DIR);
 
   async function call<T>(url: string, init: RequestInit = {}): Promise<T> {
     const res = await fetchImpl(url, { ...init, headers });
@@ -63,7 +72,26 @@ export function createGithubClient(config: GithubConfig, fetchImpl: typeof fetch
     throw new GithubError(message, res.status);
   }
 
+  async function readFile(url: string) {
+    try {
+      const file = await call<{ content: string; sha: string }>(`${url}?ref=${config.branch}`);
+      return { content: decodeBase64Utf8(file.content), sha: file.sha };
+    } catch (error) {
+      if (error instanceof GithubError && error.status === 404) return null;
+      throw error;
+    }
+  }
+
+  async function writeFile(url: string, content: string, { sha, message }: { sha?: string; message: string }) {
+    const body = { message, content: encodeBase64Utf8(content), branch: config.branch, ...(sha ? { sha } : {}) };
+    const res = await call<{ content: { sha: string }; commit: { html_url: string } }>(url, { method: 'PUT', body: JSON.stringify(body) });
+    return { sha: res.content.sha, commitUrl: res.commit.html_url };
+  }
+
   return {
+    getDataFile: (key) => readFile(pathUrl(DATA_FILES[key])),
+    saveDataFile: (key, content, options) => writeFile(pathUrl(DATA_FILES[key]), content, options),
+
     async listPosts() {
       const items = await call<{ type: string; name: string; sha: string }[]>(`${contentsUrl()}?ref=${config.branch}`);
       return items
@@ -72,24 +100,8 @@ export function createGithubClient(config: GithubConfig, fetchImpl: typeof fetch
         .sort((a, b) => b.name.localeCompare(a.name));
     },
 
-    async getPost(name) {
-      try {
-        const file = await call<{ content: string; sha: string }>(`${contentsUrl(name)}?ref=${config.branch}`);
-        return { content: decodeBase64Utf8(file.content), sha: file.sha };
-      } catch (error) {
-        if (error instanceof GithubError && error.status === 404) return null;
-        throw error;
-      }
-    },
-
-    async savePost(name, content, { sha, message }) {
-      const body = { message, content: encodeBase64Utf8(content), branch: config.branch, ...(sha ? { sha } : {}) };
-      const res = await call<{ content: { sha: string }; commit: { html_url: string } }>(contentsUrl(name), {
-        method: 'PUT',
-        body: JSON.stringify(body),
-      });
-      return { sha: res.content.sha, commitUrl: res.commit.html_url };
-    },
+    getPost: (name) => readFile(contentsUrl(name)),
+    savePost: (name, content, options) => writeFile(contentsUrl(name), content, options),
 
     async deletePost(name, sha, message) {
       const res = await call<{ commit: { html_url: string } }>(contentsUrl(name), {

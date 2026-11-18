@@ -33,6 +33,12 @@ export interface SavedPost {
   commitUrl: string;
 }
 
+export interface SeasonSetting {
+  enabled: boolean;
+  start: string;
+  end: string;
+}
+
 export interface PresignedUpload {
   uploadUrl: string;
   publicUrl: string;
@@ -68,6 +74,9 @@ export const api = {
   createPost: (input: unknown) => request<SavedPost>('/api/admin/posts/', { method: 'POST', body: JSON.stringify(input) }),
   updatePost: (name: string, input: unknown) => request<SavedPost>(postPath(name), { method: 'PUT', body: JSON.stringify(input) }),
   deletePost: (name: string, sha: string) => request<{ commitUrl: string }>(postPath(name), { method: 'DELETE', body: JSON.stringify({ sha }) }),
+  getSeasons: () => request<{ seasons: Record<string, SeasonSetting>; sha?: string }>('/api/admin/seasons/'),
+  saveSeasons: (seasons: Record<string, SeasonSetting>, sha?: string) =>
+    request<{ sha: string; commitUrl: string }>('/api/admin/seasons/', { method: 'PUT', body: JSON.stringify({ seasons, sha }) }),
   presign: (file: { filename: string; contentType: string; size: number; alt: string }) =>
     request<PresignedUpload>('/api/admin/upload/', { method: 'POST', body: JSON.stringify(file) }),
 };
