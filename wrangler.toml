@@ -1,3 +1,10 @@
 name = "natpakan-site"
 compatibility_date = "2024-09-23"
 pages_build_output_dir = "dist"
+
+# Plain-text (non-secret) variables. Secrets are set with `wrangler pages secret` / the dashboard.
+[vars]
+# Public URL of the R2 media bucket. Also read by astro.config.mjs at build time for the CSP.
+MEDIA_PUBLIC_BASE_URL = "https://pub-1e370c9b2c534184a925e9da46bf9245.r2.dev"
+# Account that owns the media bucket; also used by the CSP to allow presigned uploads. Not a secret.
+R2_ACCOUNT_ID = "5296963af71b6e6e6f9ac8f6241647b8"

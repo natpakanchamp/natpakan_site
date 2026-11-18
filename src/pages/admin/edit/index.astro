@@ -1,0 +1,89 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { CATEGORIES } from '@/lib/admin/post-format';
+import { guardAdminPage } from '@/lib/admin/page-guard';
+
+export const prerender = false;
+
+const guard = await guardAdminPage(Astro);
+const file = Astro.url.searchParams.get('file') ?? '';
+const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Bangkok' }).format(new Date());
+---
+
+<AdminLayout title={file ? 'แก้ไขโพสต์' : 'โพสต์ใหม่'}>
+  {guard.ok ? (
+    <form id="post-form" class="editor" data-file={file} novalidate>
+      <section class="editor-meta" aria-label="ข้อมูลโพสต์">
+        <label class="field field-title">
+          <span>ชื่อโพสต์</span>
+          <input name="title" required maxlength="200" placeholder="CP Scholarship Bootcamp 2026" />
+        </label>
+
+        <div class="field-row">
+          <label class="field">
+            <span>วันที่</span>
+            <input type="date" name="date" required value={today} />
+          </label>
+          <label class="field">
+            <span>เวลา</span>
+            <input type="time" name="time" required value="12:00" />
+          </label>
+          <label class="field field-grow">
+            <span>slug (ส่วนท้าย URL)</span>
+            <input name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" maxlength="80" placeholder="cp-scholarship-bootcamp-2026" />
+          </label>
+        </div>
+
+        <fieldset class="field">
+          <legend>หมวด</legend>
+          <div class="chips">
+            {CATEGORIES.map((c) => (
+              <label class="chip"><input type="checkbox" name="categories" value={c} checked={c === 'activities'} /> {c}</label>
+            ))}
+          </div>
+        </fieldset>
+
+        <label class="field">
+          <span>คำโปรย (ไม่บังคับ)</span>
+          <input name="excerpt" maxlength="300" />
+        </label>
+        <p id="url-preview" class="admin-muted url-preview"></p>
+      </section>
+
+      <section class="editor-panes">
+        <div class="pane">
+          <div class="pane-head">
+            <span>Markdown</span>
+            <label class="upload-btn">
+              อัปโหลดรูป/คลิป
+              <input id="file-input" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif,video/mp4,video/webm,video/quicktime" multiple hidden />
+            </label>
+          </div>
+          <textarea id="body" name="body" spellcheck="false" placeholder="เขียนเนื้อหาที่นี่… ลากรูปหรือคลิปมาวางได้เลย"></textarea>
+          <ul id="upload-queue" class="upload-queue" aria-live="polite"></ul>
+        </div>
+        <div class="pane">
+          <div class="pane-head"><span>พรีวิว</span></div>
+          <article id="preview" class="preview post-content"></article>
+        </div>
+      </section>
+
+      <footer class="editor-actions">
+        <p id="save-status" class="admin-muted" role="status"></p>
+        <button type="button" id="delete-btn" class="btn btn-danger" hidden>ลบโพสต์</button>
+        <button type="submit" name="intent" value="draft" class="btn">บันทึก draft</button>
+        <button type="submit" name="intent" value="publish" class="btn btn-primary">เผยแพร่</button>
+      </footer>
+    </form>
+  ) : (
+    <section class="admin-denied">
+      <h1>{guard.status}</h1>
+      <p>{guard.message}</p>
+    </section>
+  )}
+</AdminLayout>
+
+<script>
+  import { initEditor } from '@/scripts/admin/editor';
+  initEditor();
+</script>

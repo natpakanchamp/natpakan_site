@@ -1,0 +1,37 @@
+---
+import AdminLayout from '@/layouts/AdminLayout.astro';
+import { getCollection } from 'astro:content';
+import { guardAdminPage } from '@/lib/admin/page-guard';
+
+export const prerender = false;
+
+const guard = await guardAdminPage(Astro);
+
+// Titles and draft flags known at build time (includes drafts). Newer commits fall back to the file name.
+const known = guard.ok
+  ? Object.fromEntries((await getCollection('posts')).map((p) => [p.id.replace(/\.md$/, ''), { title: p.data.title, draft: p.data.draft }]))
+  : {};
+---
+
+<AdminLayout title="โพสต์ทั้งหมด">
+  {guard.ok ? (
+    <section aria-labelledby="posts-heading">
+      <div class="admin-heading">
+        <h1 id="posts-heading">โพสต์ทั้งหมด</h1>
+        <p class="admin-muted">เข้าสู่ระบบเป็น {guard.email}</p>
+      </div>
+      <p id="post-list-status" class="admin-muted" role="status">กำลังโหลด…</p>
+      <ol id="post-list" class="post-list" data-known={JSON.stringify(known)}></ol>
+    </section>
+  ) : (
+    <section class="admin-denied">
+      <h1>{guard.status}</h1>
+      <p>{guard.message}</p>
+    </section>
+  )}
+</AdminLayout>
+
+<script>
+  import { initPostList } from '@/scripts/admin/list';
+  initPostList();
+</script>

@@ -1,0 +1,41 @@
+---
+import '@/styles/global.css';
+import '@/styles/admin.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} · Admin</title>
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme') ||
+            (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+          document.documentElement.setAttribute('data-theme', stored);
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body class="admin">
+    <header class="admin-bar">
+      <a class="admin-brand" href="/admin/">Natpakan<span>/admin</span></a>
+      <nav aria-label="Admin">
+        <a href="/admin/edit/">+ โพสต์ใหม่</a>
+        <a href="/" target="_blank" rel="noopener">ดูเว็บ ↗</a>
+      </nav>
+    </header>
+    <main class="admin-main">
+      <slot />
+    </main>
+  </body>
+</html>
