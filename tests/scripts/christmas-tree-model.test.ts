@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import { BUILD_END_S, Kind, T_STAR, buildModel } from '@/scripts/seasonal/christmas-tree/model';
+import { MESSAGE, T_MSG, christmasYear, drawMessage, messageFor } from '@/scripts/seasonal/christmas-tree/message';
 
 const model = buildModel();
 const TREE_KINDS = new Set<number>([Kind.Needle, Kind.Snow, Kind.Inner, Kind.Trunk]);
@@ -44,5 +45,72 @@ describe('christmas tree build timeline', () => {
     const lit = needles.filter((p) => !Number.isNaN(p.hot)).length / needles.length;
     expect(lit).toBeGreaterThan(0.4);
     expect(lit).toBeLessThan(0.7);
+  });
+
+  test('no dark holes wait for the baubles: contact shadows only start once a bauble pops in', () => {
+    const balls = new Set<number>();
+    for (let i = 0; i < model.n; i++) if (model.kind[i] === Kind.Ball) balls.add(Math.round(model.t0[i] * 1e4));
+    let shaded = 0;
+    for (let i = 0; i < model.n; i++) {
+      if (model.shade[i] >= 1) continue;
+      shaded++;
+      expect(model.shadeAt[i]).toBeGreaterThan(GROWTH_END_S); // never during growth
+      expect(balls.has(Math.round(model.shadeAt[i] * 1e4))).toBe(true); // tied to a real bauble's pop-in
+    }
+    expect(shaded).toBeGreaterThan(100); // the shadows still exist
+  });
+
+  test('foliage base brightness is no longer pre-darkened around baubles', () => {
+    for (let i = 0; i < model.n; i++) {
+      if (model.kind[i] === Kind.Inner) expect(model.base[i]).toBeCloseTo(0.75, 5);
+    }
+  });
+
+  test('baubles flash white the moment they pop in', () => {
+    let balls = 0;
+    for (let i = 0; i < model.n; i++) {
+      if (model.kind[i] !== Kind.Ball) continue;
+      balls++;
+      expect(model.hot[i]).toBe(model.t0[i]);
+    }
+    expect(balls).toBeGreaterThan(0);
+  });
+});
+
+describe('MERRY CHRISTMAS 2026 message', () => {
+  const COLS = 70;
+  const render = (t: number, text = messageFor(2026)) => {
+    const cells = new Map<number, string>();
+    drawMessage({ cols: COLS, row: 5, clear: (c) => cells.delete(c), put: (c, ch) => cells.set(c, ch) }, t, text);
+    return [...cells.entries()].sort((a, b) => a[0] - b[0]).map(([, ch]) => ch).join('');
+  };
+
+  test('spells the spaced-out greeting with the year', () => {
+    expect(messageFor(2026)).toBe('M E R R Y   C H R I S T M A S   2 0 2 6');
+    expect(messageFor(2031)).toBe('M E R R Y   C H R I S T M A S   2 0 3 1');
+  });
+
+  test('the year follows the calendar, in the site time zone', () => {
+    expect(christmasYear(new Date('2026-12-15T05:00:00Z'))).toBe(2026);
+    expect(christmasYear(new Date('2027-11-20T05:00:00Z'))).toBe(2027);
+    // a season running into early January still celebrates last Christmas
+    expect(christmasYear(new Date('2027-01-04T05:00:00Z'))).toBe(2026);
+    // 31 Dec 2026 18:00 UTC is already 1 Jan 2027 in Bangkok → still Christmas 2026
+    expect(christmasYear(new Date('2026-12-31T18:00:00Z'))).toBe(2026);
+  });
+
+  test('the live message uses the current Christmas year', () => {
+    expect(MESSAGE).toBe(messageFor(christmasYear()));
+  });
+
+  test('is typed out after the star, letter by letter', () => {
+    expect(T_MSG).toBeGreaterThan(T_STAR);
+    expect(render(T_MSG)).toBe('');
+    expect(render(T_MSG + 0.55)).toBe('MER');
+    expect(render(T_MSG + 10)).toBe('MERRYCHRISTMAS2026');
+  });
+
+  test('is fully written before the reduced-motion still frame (t = 17)', () => {
+    expect(T_MSG + MESSAGE.length / 10).toBeLessThan(17);
   });
 });

@@ -48,10 +48,10 @@ const sparkle = (share: number, at: number) => (sparkRandom() < share ? at : NaN
 
 type Rgb = readonly [number, number, number];
 export const WHITE: Rgb = [0.95, 0.97, 1.0];
-const RED: Rgb = [0.93, 0.2, 0.2];
+export const RED: Rgb = [0.93, 0.2, 0.2];
 export const GOLD: Rgb = [1.0, 0.77, 0.35];
 const BAUBLE_GOLD: Rgb = [1.0, 0.7, 0.2];
-const GREEN_BOX: Rgb = [0.25, 0.78, 0.36];
+export const GREEN_BOX: Rgb = [0.25, 0.78, 0.36];
 const BLUE_BOX: Rgb = [0.28, 0.42, 0.98];
 const WARM: Rgb = [1.0, 0.8, 0.45];
 /** Paler than the gold baubles so the garland reads as its own line around the tree. */
@@ -67,6 +67,10 @@ export interface Model {
   t0: Float32Array; base: Float32Array; phase: Float32Array;
   /** Time the point's layer turns white-hot; NaN = never. */
   hot: Float32Array;
+  /** Contact-shadow brightness factor (1 = unshaded), applied once `shadeAt` has passed. */
+  shade: Float32Array;
+  /** When the ornament casting that shadow pops in (Infinity = never), so no dark hole waits for it. */
+  shadeAt: Float32Array;
 }
 
 // ---------------------------------------------------------------- deterministic RNG
@@ -130,36 +134,43 @@ const SHADOW_REACH_BELOW = 1.6;
 
 // ---------------------------------------------------------------- point collector
 class Builder {
-  private data: number[][] = Array.from({ length: 19 }, () => []);
+  private data: number[][] = Array.from({ length: 20 }, () => []);
 
   add(p: number[], nrm: number[], col: Rgb | number[], kind: Kind, t0: number,
       opts: { base?: number; phase?: number; centre?: number[]; pop?: boolean; hot?: number } = {}) {
     const len = Math.hypot(nrm[0], nrm[1], nrm[2]) + 1e-9;
     const c = opts.centre ?? p;
     const row = [p[0], p[1], p[2], nrm[0] / len, nrm[1] / len, nrm[2] / len, col[0], col[1], col[2],
-      c[0], c[1], c[2], kind, opts.pop ? 1 : 0, t0, opts.base ?? 1, opts.phase ?? 0, opts.hot ?? NaN, 0];
+      c[0], c[1], c[2], kind, opts.pop ? 1 : 0, t0, opts.base ?? 1, opts.phase ?? 0, opts.hot ?? NaN, 1, Infinity];
     for (let i = 0; i < row.length; i++) this.data[i].push(row[i]);
   }
 
   /**
    * Contact shadows: foliage close to an ornament is darkened (more so just below it, where the
    * ornament blocks the light from above), so baubles read as hanging in the branches.
+   * The shadow is stored, not baked in: it appears only when its bauble pops in (render.ts).
    */
-  shadeFoliageNear(spheres: { c: number[]; r: number }[]) {
+  shadeFoliageNear(spheres: { c: number[]; r: number; t0: number }[]) {
     const d = this.data;
     for (let i = 0; i < d[0].length; i++) {
       const kind = d[12][i];
       if (kind !== Kind.Needle && kind !== Kind.Inner && kind !== Kind.Snow) continue;
       let shade = 1;
-      for (const { c, r } of spheres) {
+      let at = Infinity;
+      for (const { c, r, t0 } of spheres) {
         const dy = d[1][i] - c[1];
         const reach = r * (dy < 0 ? SHADOW_REACH_BELOW : SHADOW_REACH);
         const gap = Math.hypot(d[0][i] - c[0], dy, d[2][i] - c[2]) - r;
         if (gap >= reach) continue;
         const x = Math.max(gap, 0) / reach;
-        shade = Math.min(shade, SHADOW_FLOOR + (1 - SHADOW_FLOOR) * x * x * (3 - 2 * x));
+        const s = SHADOW_FLOOR + (1 - SHADOW_FLOOR) * x * x * (3 - 2 * x);
+        if (s < shade) {
+          shade = s;
+          at = t0; // the darkest shadow belongs to this bauble: show it when that bauble appears
+        }
       }
-      d[15][i] *= shade;
+      d[18][i] = shade;
+      d[19][i] = at;
     }
   }
 
@@ -175,6 +186,7 @@ class Builder {
       n, pos: vec(0), nrm: vec(3), col: vec(6), centre: vec(9),
       kind: Uint8Array.from(d[12]), pop: Uint8Array.from(d[13]),
       t0: Float32Array.from(d[14]), base: Float32Array.from(d[15]), phase: Float32Array.from(d[16]), hot: Float32Array.from(d[17]),
+      shade: Float32Array.from(d[18]), shadeAt: Float32Array.from(d[19]),
     };
   }
 }
@@ -254,9 +266,9 @@ function addGarland(q: Builder, rng: ReturnType<typeof makeRng>) {
   }
 }
 
-function addBaubles(q: Builder, rng: ReturnType<typeof makeRng>): { c: number[]; r: number }[] {
+function addBaubles(q: Builder, rng: ReturnType<typeof makeRng>): { c: number[]; r: number; t0: number }[] {
   const sphere = fibSphere(160);
-  const placed: { c: number[]; r: number }[] = [];
+  const placed: { c: number[]; r: number; t0: number }[] = [];
   for (let k = 0; k < 34; k++) {
     const u = (k + rng.random()) / 34;
     const y = Y0 + 0.08 + u * (Y1 - Y0 - 0.38);
@@ -264,10 +276,10 @@ function addBaubles(q: Builder, rng: ReturnType<typeof makeRng>): { c: number[];
     const c = [Math.cos(a) * envelope(y), y - 0.03, Math.sin(a) * envelope(y)];
     const rad = 0.058 + 0.032 * (1 - u);
     const t0 = T_BALLS[0] + rng.random() * (T_BALLS[1] - T_BALLS[0]);
-    placed.push({ c, r: rad });
+    placed.push({ c, r: rad, t0 });
     for (const s of sphere) {
       q.add([c[0] + s[0] * rad, c[1] + s[1] * rad, c[2] + s[2] * rad], s, k % 2 === 0 ? RED : BAUBLE_GOLD, Kind.Ball, t0,
-        { centre: c, pop: true });
+        { centre: c, pop: true, hot: t0 }); // pops in white-hot, then settles to red / gold
     }
   }
   return placed;

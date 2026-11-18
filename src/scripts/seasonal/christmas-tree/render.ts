@@ -4,11 +4,14 @@
  * minus the sky, snow, ground, message and HUD.
  */
 import { buildGround, drawGround } from './ground';
+import { drawMessage } from './message';
 import { GOLD, GROUND, Kind, T_STAR, TAU, Y1, type Model } from './model';
 
 // grid + camera (re-framed so the tree and presents fill a compact card)
 export const COLS = 70;
-export const ROWS = 38;
+export const ROWS = 40; // tree + star, plus room under the presents for the message
+/** Row the "MERRY CHRISTMAS 2026" message sits on: just under the presents. */
+const MESSAGE_ROW = ROWS - 3;
 export const CELL_W = 10;
 export const CELL_H = 17;
 const ASPECT = CELL_H / CELL_W;
@@ -25,6 +28,8 @@ const ROT_SPEED = 17.76; // degrees per second
 const TINSEL_TRAIL_S = 0.8;
 /** Presents flash white as they pop in, then fade back to their colours. */
 const GIFT_TRAIL_S = 0.6;
+/** Baubles pop in white and fade back to red / gold. */
+const BALL_TRAIL_S = 0.5;
 /**
  * Build waves: needles and the core fade fast, so only the rows growing right now are white —
  * a thin band per wave rather than a tall block left behind it.
@@ -33,6 +38,8 @@ const NEEDLE_TRAIL_S = 0.22;
 const CORE_TRAIL_S = 0.25;
 const HOT: readonly number[] = [1.35, 1.35, 1.3];
 const LEVELS = 16;
+/** Matches the ornaments' pop-in (easeOutBack over age / 0.35 in projectInto). */
+const BALL_POP_S = 0.35;
 /** Ambient light on baubles; lower = deeper shadow on their far side. */
 const BALL_AMBIENT = 0.18;
 
@@ -145,11 +152,15 @@ function shade(m: Model, i: number, f: Frame, cell: number, t: number, tb: numbe
   const hotAge = grows ? tb - hot : 1e9;
   const trail = kind === Kind.Tinsel ? TINSEL_TRAIL_S
     : kind === Kind.Gift || kind === Kind.Ribbon ? GIFT_TRAIL_S
+    : kind === Kind.Ball ? BALL_TRAIL_S
     : kind === Kind.Needle || kind === Kind.Snow ? NEEDLE_TRAIL_S
     : CORE_TRAIL_S; // inner cone + trunk: the core lights first, then the ring spreads out
   const heat = hotAge < 0 ? 0 // the flash hasn't reached this point yet
     : clamp(1 - hotAge / trail) ** 1.2; // bright white head, soft fade back to its colour
   const fadeIn = grows ? 1 : clamp(age / 0.35);
+  // contact shadow from a bauble eases in as that bauble pops, so the tree is never "holed" before
+  const shadowIn = clamp((tb - m.shadeAt[i]) / BALL_POP_S);
+  lum *= 1 - (1 - m.shade[i]) * shadowIn;
   lum *= fadeIn * clamp(1.5 - 0.1 * z, 0.6, 1.1);
 
   const level = Math.floor(clamp(lum) ** 0.8 * (LEVELS - 1));
@@ -243,6 +254,16 @@ export function renderScene(m: Model, f: Frame, t: number, tb: number): void {
     const cy = ROWS * HORIZON - ((STAR_Y - CAM_Y) / z) * ROWS * FOV;
     drawStar(f, Math.round(cx), Math.round(cy), (2 + 2.2 * on) * (1 + 0.05 * Math.sin(t * 3)), t, on, flash);
   }
+
+  drawMessage({
+    cols: COLS,
+    row: MESSAGE_ROW,
+    // only clear the snowfield: presents rotating close by are never cut
+    clear: (cell) => {
+      if (!f.solid[cell]) f.chars[cell] = '';
+    },
+    put: (cell, ch, r, g, b) => setCell(f, cell, ch, r, g, b),
+  }, t);
 }
 
 /** Cells brighter than this (max channel) are copied to the bloom layer. */
