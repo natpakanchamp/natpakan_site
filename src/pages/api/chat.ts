@@ -34,10 +34,11 @@ function json(statusCode: number, body: unknown): Response {
 }
 
 async function callGemini(apiKey: string, systemText: string, turns: unknown[]) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+  // Key in a header, not the query string, so it never lands in URL logs.
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
     body: JSON.stringify({
       system_instruction: { parts: [{ text: systemText }] },
       contents: turns,
@@ -52,7 +53,7 @@ async function callGemini(apiKey: string, systemText: string, turns: unknown[]) 
 
 const CREATOR_CONTEXT = `ข้อมูลเจ้าของเว็บไซต์:
 - ชื่อ: ณัฐปคัลภ์ กันทะศร (Natpakan Kanthason)
-- กำลังศึกษาอยู่ชั้นปีที่ 2 ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเชียงใหม่
+- กำลังศึกษาอยู่ชั้นปีที่ 3 ภาควิชาวิศวกรรมคอมพิวเตอร์ คณะวิศวกรรมศาสตร์ มหาวิทยาลัยเชียงใหม่
 - มีความสนใจด้าน Software Development, Artificial Intelligence และ Hardware Engineering
 - เว็บไซต์นี้เป็น personal blog สำหรับบันทึกความรู้ กิจกรรม และโน้ตการเรียน`;
 

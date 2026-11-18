@@ -1,0 +1,12 @@
+rules_version = '2';
+
+// All Firestore access goes through the site's server routes (/api/*), which
+// authenticate with a service account and bypass these rules. Nothing in the
+// browser talks to Firestore directly, so public access is denied outright.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

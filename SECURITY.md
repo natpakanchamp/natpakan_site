@@ -11,7 +11,7 @@ This is a personal portfolio and static site. Only the latest deployed version i
 
 ## Scope
 
-This site is built with [Astro](https://astro.build) and deployed on Netlify. It uses Firebase for view counters. As a static site with no user authentication or sensitive data collection, the attack surface is limited.
+This site is built with [Astro](https://astro.build) and deployed on Cloudflare Pages. It uses Firebase (server-side only, via a service account) for view counters and rate limiting. Public pages are static; the only authenticated surface is the owner's admin at `/admin/` and `/api/admin/*`, protected by Cloudflare Access with the Access JWT re-verified on every request.
 
 **In scope:**
 - Cross-site scripting (XSS) vulnerabilities
@@ -19,10 +19,11 @@ This site is built with [Astro](https://astro.build) and deployed on Netlify. It
 - Exposed API keys or credentials in the source code
 - Third-party dependency vulnerabilities with a realistic exploit path
 - Firebase security rules that allow unauthorized reads/writes
+- Any way to reach `/admin/` or `/api/admin/*` without being the configured admin
 
 **Out of scope:**
 - Denial-of-service attacks
-- Issues in Netlify or Firebase infrastructure (report those directly to the respective vendors)
+- Issues in Cloudflare or Firebase infrastructure (report those directly to the respective vendors)
 - Vulnerabilities requiring physical access to my machine
 
 ## Reporting a Vulnerability

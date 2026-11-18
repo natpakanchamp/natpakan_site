@@ -12,8 +12,19 @@ export function clientIp(request: Request): string {
     || 'unknown';
 }
 
+const LEGACY_SALT = 'natpakan';
+let ipHashSalt = LEGACY_SALT;
+
+/** Called by src/middleware.ts. A secret salt keeps stored IP hashes from being brute-forced back to IPs. */
+export function configureIpHashSalt(env: Record<string, unknown>): void {
+  const salt = env.IP_HASH_SALT;
+  ipHashSalt = typeof salt === 'string' && salt.length >= 16 ? salt : LEGACY_SALT;
+}
+
+/** Keyed hash (HMAC-SHA256) so the salt cannot be recovered from the output. */
 export async function hashIp(ip: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ip + ':natpakan'));
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(ipHashSalt), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const buf = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(ip));
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
