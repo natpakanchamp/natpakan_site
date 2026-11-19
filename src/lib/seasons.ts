@@ -8,8 +8,9 @@
  * every year without a rebuild. Preview any season with `?season=<id>`.
  *
  * To add a season: add its id + label to SEASON_LABELS, a default entry to
- * seasons.json, its component to src/components/seasonal/, and render it
- * inside <Seasonal id="..."> in SeasonalDecor.astro.
+ * seasons.json, put everything for it in one folder (src/seasonal/<name>/, like
+ * src/seasonal/christmas/), and render it inside <Seasonal id="..."> in
+ * src/components/seasonal/SeasonalDecor.astro.
  */
 import storedConfig from '@/data/seasons.json';
 

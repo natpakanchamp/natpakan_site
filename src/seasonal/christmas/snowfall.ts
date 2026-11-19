@@ -4,7 +4,7 @@
  * and sway. Cells covered by any `[data-snow-shield]` element (e.g. the
  * Christmas tree) are skipped, so the snow never draws over them.
  */
-import { collectShields, isShielded } from '../snow-shield';
+import { collectShields, isShielded } from './snow-shield';
 const TAU = Math.PI * 2;
 const CELL_W = 10;
 const CELL_H = 16;

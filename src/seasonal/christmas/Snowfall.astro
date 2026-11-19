@@ -8,7 +8,7 @@
 <canvas class="snowfall" data-snowfall aria-hidden="true"></canvas>
 
 <script>
-  import { initSnowfall } from '@/scripts/seasonal/snowfall';
+  import { initSnowfall } from './snowfall';
   import { isSeasonActiveHere } from '@/lib/seasons';
 
   document.querySelectorAll<HTMLCanvasElement>('canvas[data-snowfall]').forEach((canvas) => {

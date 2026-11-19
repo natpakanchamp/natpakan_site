@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { BUILD_END_S, Kind, T_STAR, buildModel } from '@/scripts/seasonal/christmas-tree/model';
-import { MESSAGE, T_MSG, christmasYear, drawMessage, messageFor } from '@/scripts/seasonal/christmas-tree/message';
+import { BUILD_END_S, Kind, T_STAR, buildModel } from '@/seasonal/christmas/tree/model';
+import { MESSAGE, T_MSG, christmasYear, drawMessage, messageFor } from '@/seasonal/christmas/tree/message';
 
 const model = buildModel();
 const TREE_KINDS = new Set<number>([Kind.Needle, Kind.Snow, Kind.Inner, Kind.Trunk]);
