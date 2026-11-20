@@ -18,8 +18,8 @@ export interface GroundCamera {
 }
 
 const GROUND_COL = [0.6, 0.67, 0.86];
-/** Columns at each side over which the field fades out, so it melts into the backdrop. */
-const EDGE_FADE_COLS = 9;
+/** Share of the grid width at each side over which the field fades out, so it melts into the backdrop. */
+const EDGE_FADE_FRACTION = 0.13; // of the grid width
 
 const smooth = (x: number) => {
   const c = Math.min(Math.max(x, 0), 1);
@@ -57,7 +57,7 @@ export function buildGround(cam: GroundCamera): Ground {
       gz.push(z);
       gx.push(((c + 0.5 - cam.cols / 2) / (cam.scaleRows * cam.aspect)) * z);
       near.push(below / (cam.rows - cam.horizon));
-      fade.push(smooth(Math.min(c + 0.5, cam.cols - c - 0.5) / EDGE_FADE_COLS));
+      fade.push(smooth(Math.min(c + 0.5, cam.cols - c - 0.5) / (EDGE_FADE_FRACTION * cam.cols)));
     }
   }
   return { cells: Int32Array.from(cells), gx: Float32Array.from(gx), gz: Float32Array.from(gz), near: Float32Array.from(near), fade: Float32Array.from(fade) };

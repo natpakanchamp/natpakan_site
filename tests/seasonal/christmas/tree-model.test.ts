@@ -113,4 +113,13 @@ describe('MERRY CHRISTMAS 2026 message', () => {
   test('is fully written before the reduced-motion still frame (t = 17)', () => {
     expect(T_MSG + MESSAGE.length / 10).toBeLessThan(17);
   });
+
+  test('pitch spreads the letters out and keeps the text centred', () => {
+    const cols: number[] = [];
+    drawMessage({ cols: 100, row: 5, pitch: 1.5, clear: () => {}, put: (c) => cols.push(c - 500) }, T_MSG + 10, messageFor(2026));
+    const gaps = cols.slice(1).map((c, i) => c - cols[i]);
+    expect(Math.min(...gaps)).toBe(3); // letters three cells apart within a word
+    const left = cols[0], right = 99 - cols[cols.length - 1];
+    expect(Math.abs(left - right)).toBeLessThanOrEqual(1);
+  });
 });

@@ -31,6 +31,8 @@ export interface MessageGrid {
   cols: number;
   /** Row the text sits on. */
   row: number;
+  /** Cells per character of the (already space-separated) text; >1 spreads the letters out. Default 1. */
+  pitch?: number;
   /** Clear the cells around the text (e.g. snowfield dots) so it reads cleanly. */
   clear: (cell: number) => void;
   put: (cell: number, ch: string, r: number, g: number, b: number) => void;
@@ -40,12 +42,15 @@ export interface MessageGrid {
 export function drawMessage(grid: MessageGrid, t: number, text: string = MESSAGE): void {
   if (t <= T_MSG) return;
   const { cols, row } = grid;
-  const x0 = Math.floor((cols - text.length) / 2);
+  const pitch = grid.pitch ?? 1;
+  const colOf = (i: number) => Math.round(i * pitch);
+  const x0 = Math.floor((cols - colOf(text.length - 1) - 1) / 2);
   const shown = Math.min(text.length, Math.floor((t - T_MSG) * LETTERS_PER_S));
 
   // clear a band behind the text, as the original does
+  const end = shown > 0 ? x0 + colOf(shown - 1) + 1 : x0;
   for (let r = row - 1; r <= row + 1; r++) {
-    for (let c = Math.max(x0 - 3, 0); c < Math.min(x0 + shown + 3, cols); c++) grid.clear(r * cols + c);
+    for (let c = Math.max(x0 - 3, 0); c < Math.min(end + 3, cols); c++) grid.clear(r * cols + c);
   }
 
   for (let i = 0; i < shown; i++) {
@@ -53,6 +58,6 @@ export function drawMessage(grid: MessageGrid, t: number, text: string = MESSAGE
     if (ch === ' ') continue;
     const tint = PALETTE[(Math.floor(i / 2) + Math.floor(t * 1.5)) % PALETTE.length];
     const lum = 0.85 + 0.25 * Math.sin(t * 5 + i * 0.6);
-    grid.put(row * cols + x0 + i, ch, tint[0] * lum, tint[1] * lum, tint[2] * lum);
+    grid.put(row * cols + x0 + colOf(i), ch, tint[0] * lum, tint[1] * lum, tint[2] * lum);
   }
 }

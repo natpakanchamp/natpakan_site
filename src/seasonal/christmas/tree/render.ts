@@ -8,19 +8,25 @@ import { drawMessage } from './message';
 import { GOLD, GROUND, Kind, T_STAR, TAU, Y1, type Model } from './model';
 
 // grid + camera (re-framed so the tree and presents fill a compact card)
-export const COLS = 70;
-export const ROWS = 40; // tree + star, plus room under the presents for the message
-/** Row the "MERRY CHRISTMAS 2026" message sits on: just under the presents. */
-const MESSAGE_ROW = ROWS - 3;
-export const CELL_W = 10;
-export const CELL_H = 17;
+/**
+ * Detail level: grid cells per unit of the original 70-column layout. 10/7 gives a
+ * 100-column grid of 7×12 px cells — the same picture on every device, just finer.
+ * Everything measured in rows/columns below scales with it.
+ */
+export const GRID_SCALE = 10 / 7;
+export const COLS = Math.round(70 * GRID_SCALE); // 100
+export const ROWS = Math.round(40 * GRID_SCALE); // 57: tree + star, plus room under the presents for the message
+/** Row the "MERRY CHRISTMAS <year>" message sits on: just under the presents. */
+const MESSAGE_ROW = ROWS - Math.round(3 * GRID_SCALE);
+export const CELL_W = 7;
+export const CELL_H = 12;
 const ASPECT = CELL_H / CELL_W;
 const CAM_D = 5.2;
 const CAM_Y = 0.1;
 // ROWS * FOV is the on-screen scale; the extra rows (vs. the tree's footprint) are headroom for the star.
-const SCALE_ROWS = 54.4;
+const SCALE_ROWS = 54.4 * GRID_SCALE;
 const FOV = SCALE_ROWS / ROWS;
-const HORIZON = 20.32 / ROWS;
+const HORIZON = (20.32 * GRID_SCALE) / ROWS;
 /** World height of the star's centre: lifted clear of the tip so its shape reads on its own. */
 const STAR_Y = Y1 + 0.44;
 const ROT_SPEED = 17.76; // degrees per second
@@ -75,11 +81,13 @@ export interface Frame {
   colors: Float32Array;
   /** 1 where the tree/star drew (can glow, blocks site snow); 0 for the snowfield backdrop. */
   solid: Uint8Array;
+  /** 1 for the message letters, drawn with a larger font than the grid. */
+  big: Uint8Array;
 }
 
 export function createFrame(): Frame {
   const n = COLS * ROWS;
-  return { chars: new Array(n).fill(''), colors: new Float32Array(n * 3), solid: new Uint8Array(n) };
+  return { chars: new Array(n).fill(''), colors: new Float32Array(n * 3), solid: new Uint8Array(n), big: new Uint8Array(n) };
 }
 
 const clamp = (x: number, lo = 0, hi = 1) => Math.min(Math.max(x, lo), hi);
@@ -104,6 +112,7 @@ const scratch = { x: 0, y: 0, z: 0, nx: 0, ny: 0, nz: 0, age: 0 };
 function setCell(f: Frame, idx: number, ch: string, r: number, g: number, b: number, solid = 1) {
   f.chars[idx] = ch;
   f.solid[idx] = solid;
+  f.big[idx] = 0;
   f.colors[idx * 3] = r;
   f.colors[idx * 3 + 1] = g;
   f.colors[idx * 3 + 2] = b;
@@ -227,6 +236,7 @@ export function renderScene(m: Model, f: Frame, t: number, tb: number): void {
   f.chars.fill('');
   f.colors.fill(0);
   f.solid.fill(0);
+  f.big.fill(0);
   zbuf.fill(Infinity);
   winner.fill(-1);
   const theta = (ROT_SPEED * t * Math.PI) / 180;
@@ -252,20 +262,28 @@ export function renderScene(m: Model, f: Frame, t: number, tb: number): void {
     const z = CAM_D;
     const cx = COLS / 2;
     const cy = ROWS * HORIZON - ((STAR_Y - CAM_Y) / z) * ROWS * FOV;
-    drawStar(f, Math.round(cx), Math.round(cy), (2 + 2.2 * on) * (1 + 0.05 * Math.sin(t * 3)), t, on, flash);
+    drawStar(f, Math.round(cx), Math.round(cy), (2 + 2.2 * on) * GRID_SCALE * (1 + 0.05 * Math.sin(t * 3)), t, on, flash);
   }
 
   drawMessage({
     cols: COLS,
     row: MESSAGE_ROW,
+    pitch: MESSAGE_PITCH,
     // only clear the snowfield: presents rotating close by are never cut
     clear: (cell) => {
       if (!f.solid[cell]) f.chars[cell] = '';
     },
-    put: (cell, ch, r, g, b) => setCell(f, cell, ch, r, g, b),
+    put: (cell, ch, r, g, b) => {
+      setCell(f, cell, ch, r, g, b);
+      f.big[cell] = 1;
+    },
   }, t);
 }
 
+/** "MERRY CHRISTMAS <year>" is drawn this many times larger than the grid's font. */
+const MESSAGE_FONT_SCALE = 1.8;
+/** Letters sit 2 × this many cells apart (1.5 → 3 cells), so the large letters get room to breathe. */
+const MESSAGE_PITCH = 1.5;
 /** Cells brighter than this (max channel) are copied to the bloom layer. */
 const GLOW_THRESHOLD = 0.62;
 
@@ -278,9 +296,21 @@ export function paint(f: Frame, ctx: CanvasRenderingContext2D, glow: CanvasRende
   const w = COLS * CELL_W, h = ROWS * CELL_H;
   ctx.clearRect(0, 0, w, h);
   glow?.clearRect(0, 0, w, h);
+  paintCells(f, ctx, glow, 0);
+  // message letters last, in a larger bold font (they sit two cells apart, so there's room)
+  const gridFont = ctx.font;
+  const bigFont = `bold ${CELL_H * MESSAGE_FONT_SCALE}px ${gridFont.replace(/^.*?\d+(\.\d+)?px\s*/, '')}`;
+  ctx.font = bigFont;
+  if (glow) glow.font = bigFont;
+  paintCells(f, ctx, glow, 1);
+  ctx.font = gridFont;
+  if (glow) glow.font = gridFont;
+}
+
+function paintCells(f: Frame, ctx: CanvasRenderingContext2D, glow: CanvasRenderingContext2D | null, big: 0 | 1): void {
   for (let idx = 0; idx < f.chars.length; idx++) {
     const ch = f.chars[idx];
-    if (!ch) continue;
+    if (!ch || f.big[idx] !== big) continue;
     const r = Math.min(f.colors[idx * 3], 1), g = Math.min(f.colors[idx * 3 + 1], 1), b = Math.min(f.colors[idx * 3 + 2], 1);
     const style = `rgb(${(r * 255) | 0},${(g * 255) | 0},${(b * 255) | 0})`;
     const x = (idx % COLS) * CELL_W + CELL_W / 2;
